@@ -1,0 +1,35 @@
+DB Table Headings:
+User:
+	UserID
+	username
+	password
+	profileInfo
+	profilePicture
+	settings
+	friends
+	berealMemories
+	pinnedBereals
+	chatSessions
+	friendSuggestions
+
+BeReal:
+	BeRealID
+	UserID
+	image
+	timestamp
+	location
+	caption
+	music
+	isPinned
+	isToday
+	isScreenshotTaken
+	user
+	comments
+	reactions
+Friend:
+	FriendID
+	UserID
+	friendshipDuration
+	mutualFriends
+	pins
+	todaysBereal
