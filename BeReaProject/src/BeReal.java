@@ -2,6 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeReal {
+
+
+    public BeReal() {
+    }
+
+    /*
     private User user;
     private Image image;
     private TimeStamp Time;
@@ -9,7 +15,8 @@ public class BeReal {
     private String caption;
     private Music music;
     private boolean isPinned;
-    private boolean isToday;s
+    private boolean isToday;
     List<Comment> comments = new ArrayList<>();
     List<Reaction> reactions = new ArrayList<>();
+    */
 }

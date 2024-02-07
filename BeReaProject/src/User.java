@@ -2,24 +2,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    //attributes
+    // attributes
     private int userID;
     private static int counter = 0;
     private String username;
     private String password;
     private String profileInfo;
-    private Picture profilePicture;
-    private Settings settings;
-    List<Friend> friendList = new ArrayList<>();
-    List<BeReal> berealMemories = new ArrayList<>();
-    List<BeReal> pinnedBereals = new ArrayList<>();
+    // private Picture profilePicture;
+    // private Settings settings;
+    // List<Friend> friendList = new ArrayList<>();
+    // List<BeReal> berealMemories = new ArrayList<>();
+    // List<BeReal> pinnedBereals = new ArrayList<>();
 
     //constructor
     public User(){
         userID = counter;
-        counter ++;
+        counter++;
     }
-    //setters
+
+    public BeReal publishBeReal(Image image, String caption, String music){
+        BeReal beReal = new BeReal();
+
+
+        return beReal;
+    }
+
+    // getters
     public int getUserID() {
         return userID;
     }
@@ -36,7 +44,7 @@ public class User {
         return profileInfo;
     }
 
-    //setters
+    // setters
     public void setUsername(String username){
         this.username = username;
     }
