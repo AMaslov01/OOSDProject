@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class test {
+public class retrieve {
     public static void main(String[] args) {
         // Connection parameters
         String url = "jdbc:mysql://37.27.34.21:3306/BeReal";
