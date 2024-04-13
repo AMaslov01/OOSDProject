@@ -1,7 +1,9 @@
 package myGUI;
+
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args){
-
-        Post postFrame = new Post();
+        JFrame logIn = new LogIn();
     }
 }
