@@ -77,7 +77,7 @@ public class LogIn extends JFrame implements ActionListener {
                     if(array.length != 0){
                         JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
                         logIn.dispose();
-                        PostBase post = new PostBase(userName);
+                        JFrame post = new Post(userName);
                         //System.out.println(post.getUserName());
                     }
                     else{

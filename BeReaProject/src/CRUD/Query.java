@@ -42,9 +42,7 @@ public class Query {
         }
     }
     public Object[][] retrieve(String sql){
-        String url = "jdbc:mysql://37.27.34.21:3306/BeReal";
-        String user = "root";
-        String password = "xyrbib-1gitvY-ruvkok";
+
 
         try {
             // Establish connection
@@ -91,5 +89,78 @@ public class Query {
         }
 
     }
+    public Blob blobRetrieve(String sql){
 
+
+        try {
+            // Establish connection
+            Connection connection = DriverManager.getConnection(url, user, password);
+
+            // Create a statement
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+            // Select the database
+            String databaseName = "BeReal";
+            statement.execute("USE " + databaseName);
+            Blob res = null;
+            // Execute a SELECT query
+
+            ResultSet resultSet = statement.executeQuery(sql);
+            resultSet.beforeFirst();
+            if(resultSet.next()){
+                res = resultSet.getBlob(1);
+                System.out.println(res);
+
+            }
+            else{
+                System.out.println("blob is null");
+            }
+
+
+            // Close resources
+            resultSet.close();
+            statement.close();
+            connection.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Blob res = null;
+            return res;
+        }
+
+    }
+    public void blobExecute(String sql, byte[] arr) {
+        Connection connection = null;
+        PreparedStatement pstat = null;
+        int i;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+
+            // Prepare the SQL statement with a placeholder for username
+            pstat = connection.prepareStatement(sql);
+            pstat.setBytes(1, arr);
+
+            // Execute the SQL statement and get the number of rows affected
+            i = pstat.executeUpdate();
+
+            // Print the number of records successfully added to the table
+            System.out.println(i + " record successfully added to the table.");
+        } catch (SQLException sqlException) {
+            // Handle SQLException by printing the stack trace
+            sqlException.printStackTrace();
+        } finally {
+            // Close the PreparedStatement and Connection objects in a finally block to ensure resources are released
+            try {
+                if (pstat != null) {
+                    pstat.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception exception) {
+                // Handle any exceptions that occur while closing resources by printing the stack trace
+                exception.printStackTrace();
+            }
+        }
+    }
 }
