@@ -21,6 +21,7 @@ public class Feed extends JFrame implements ActionListener {
     String userName;
     File file;
     JFrame frame = new JFrame();
+    JPanel panel = new JPanel();
     Query query = new Query();
     String sql;
     final int FRAME_WIDTH = 500;
@@ -38,8 +39,8 @@ public class Feed extends JFrame implements ActionListener {
         frame.setResizable(false);
         frame.getContentPane().setBackground(Color.black);
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-        int panel_height = 0;
-        JPanel panel = new JPanel();
+        int panel_height = 200;
+
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 70));
 
 
@@ -69,37 +70,35 @@ public class Feed extends JFrame implements ActionListener {
         }
 
 
-//        //вывод моей пикчи
-//        JLabel label = new JLabel();
-//        Image image = new ImageIcon(file.getAbsolutePath()).getImage();
-//        float width = image.getWidth(null);
-//        float height = image.getHeight(null);
-//        System.out.println(width);
-//        System.out.println(height);
-//        float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
-//        float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
-//        if(width > FRAME_WIDTH_WITH_GAP){
-//            height = height/widthDivisor;
-//            width = width/widthDivisor;
-//        }
-//        if(height > FRAME_HEIGHT_WITH_GAP){
-//            width = width/heightDivisor;
-//            height = height/heightDivisor;
-//        }
-//        int rdWidth =  Math.round(width);
-//        int rdHeight = Math.round(height);
-//        panel_height += rdHeight;
-//        int xLeftTopCorner = (int)(FRAME_WIDTH/2) - (rdWidth/2);
-//        int yLeftTopCorner = (int)(FRAME_HEIGHT/2) - (rdHeight/2);
-//        label.setBounds(xLeftTopCorner, yLeftTopCorner, rdWidth, rdHeight);
-//        Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
-//        label.setIcon(new ImageIcon(scaledImage));
-//        label.setText("My Picture");
-//        label.setFont(new Font("JetBrains Mono", Font.BOLD,40));
-//        label.setForeground(Color.white);
-//        label.setHorizontalTextPosition(JLabel.CENTER);
-//        label.setVerticalTextPosition(JLabel.TOP);
-//        panel.add(label);
+        //вывод моей пикчи
+        JLabel label = new JLabel();
+        Image image = new ImageIcon(file.getAbsolutePath()).getImage();
+        float width = image.getWidth(null);
+        float height = image.getHeight(null);
+        float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
+        float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+        if(width > FRAME_WIDTH_WITH_GAP){
+            height = height/widthDivisor;
+            width = width/widthDivisor;
+        }
+        if(height > FRAME_HEIGHT_WITH_GAP){
+            width = width/heightDivisor;
+            height = height/heightDivisor;
+        }
+        int rdWidth =  Math.round(width);
+        int rdHeight = Math.round(height);
+        panel_height += rdHeight;
+        int xLeftTopCorner = (int)(FRAME_WIDTH/2) - (rdWidth/2);
+        int yLeftTopCorner = (int)(FRAME_HEIGHT/2) - (rdHeight/2);
+        label.setBounds(xLeftTopCorner, yLeftTopCorner, rdWidth, rdHeight);
+        Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
+        label.setIcon(new ImageIcon(scaledImage));
+        label.setText("My Picture");
+        label.setFont(new Font("JetBrains Mono", Font.BOLD,40));
+        label.setForeground(Color.white);
+        label.setHorizontalTextPosition(JLabel.CENTER);
+        label.setVerticalTextPosition(JLabel.TOP);
+        panel.add(label);
 
         //добавление чужих пикчей-пикчей
         try {
@@ -116,11 +115,11 @@ public class Feed extends JFrame implements ActionListener {
                         " );";
                 System.out.println("USER ID: " + friends[i]);
                 Blob blob = query.blobRetrieve(sql);
-                byte[] imageBytes = blob.getBytes(1, (int) blob.length());
 
-                // Convert byte array to Image
-                ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-                Image otherImage = ImageIO.read(bis);
+                InputStream inputStream = blob.getBinaryStream();
+
+                // Convert InputStream to Image
+                Image otherImage = ImageIO.read(inputStream);
 
                 float otherWidth = otherImage.getWidth(null);
                 float otherHeight = otherImage.getHeight(null);
@@ -138,7 +137,7 @@ public class Feed extends JFrame implements ActionListener {
                 }
                 int otherRdWidth = Math.round(otherWidth);
                 int otherRdHeight = Math.round(otherHeight);
-                panel_height += otherRdHeight;
+                panel_height += (otherRdHeight + 130);
                 int otherXLeftTopCorner = (int) (FRAME_WIDTH / 2) - (otherRdWidth / 2);
                 int otherYLeftTopCorner = (int) (FRAME_HEIGHT / 2) - (otherRdHeight / 2);
                 otherLabel.setBounds(otherXLeftTopCorner, otherYLeftTopCorner, otherRdWidth, otherRdHeight);
@@ -157,7 +156,7 @@ public class Feed extends JFrame implements ActionListener {
         catch (SQLException | IOException e){
             e.printStackTrace();
         }
-
+        System.out.println("panel height: " + panel_height);
         panel.setPreferredSize(new Dimension(490, panel_height));
         panel.setBackground(Color.black);
         JScrollPane scrollPane = new JScrollPane(panel);

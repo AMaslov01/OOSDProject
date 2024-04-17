@@ -23,9 +23,9 @@ public class Query {
 
             // Print the number of records successfully added to the table
             System.out.println(i + " record successfully added to the table.");
-        } catch(SQLException sqlException) {
+        } catch(SQLException | RuntimeException e) {
             // Handle SQLException by printing the stack trace
-            sqlException.printStackTrace();
+            e.printStackTrace();
         } finally {
             // Close the PreparedStatement and Connection objects in a finally block to ensure resources are released
             try {
@@ -82,7 +82,7 @@ public class Query {
             statement.close();
             connection.close();
             return res;
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
             e.printStackTrace();
             Object[][] res = null;
             return res;
@@ -122,7 +122,7 @@ public class Query {
             statement.close();
             connection.close();
             return res;
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
             e.printStackTrace();
             Blob res = null;
             return res;
@@ -145,9 +145,9 @@ public class Query {
 
             // Print the number of records successfully added to the table
             System.out.println(i + " record successfully added to the table.");
-        } catch (SQLException sqlException) {
+        } catch (SQLException | RuntimeException e) {
             // Handle SQLException by printing the stack trace
-            sqlException.printStackTrace();
+            e.printStackTrace();
         } finally {
             // Close the PreparedStatement and Connection objects in a finally block to ensure resources are released
             try {
