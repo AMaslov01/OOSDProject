@@ -10,38 +10,54 @@ import java.awt.event.ActionListener;
 
 public class LogIn extends JFrame implements ActionListener {
     JFrame logIn = new JFrame();
-    JLabel userName = new JLabel("Username");
-    JLabel passWord = new JLabel("Password");
-    JTextField userNameField = new JTextField();
-    JTextField passWordField = new JPasswordField();
-    JButton logInButton = new JButton("LogIn");
-    JButton registerButton = new JButton("Register");
     final int FRAME_WIDTH = 600;
     final int FRAME_HEIGHT = 450;
+
+    // Label and text field for username
+    JLabel userName = new JLabel("Username");
+    JTextField userNameField = new JTextField();
+
+    // Label and password field for password
+    JLabel passWord = new JLabel("Password");
+    JTextField passWordField = new JPasswordField();
+
+    // Buttons
+    JButton logInButton = new JButton("LogIn");
+    JButton registerButton = new JButton("Register");
+
     public LogIn (){
+
+
+
+        // Initialise the frame
         logIn.setTitle("LogIn");
         logIn.setDefaultCloseOperation(EXIT_ON_CLOSE);
         logIn.setResizable(false);
         logIn.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         logIn.setLayout(null);
         logIn.getContentPane().setBackground(Color.black);
+
+        // Set fonts and font colors for username and password
         userName.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
         passWord.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
         userNameField.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
         passWordField.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
         userName.setForeground(Color.white);
         passWord.setForeground(Color.white);
+
+        // Position the username and password fields
         userName.setBounds(50, 100, 150, 50);
         passWord.setBounds(50, 170, 150, 50);
         userNameField.setBounds(250, 100, 300, 50);
         passWordField.setBounds(250, 170, 300, 50);
 
-
+        // Log In button
         logInButton.setFont(new Font("JetBrains Mono", Font.BOLD, 25));
         logInButton.setForeground(Color.black);
         logInButton.setBounds(120, 250, 130, 50);
         logInButton.addActionListener(this);
 
+        // Register Button
         registerButton.setFont(new Font("JetBrains Mono", Font.BOLD, 25));
         registerButton.setForeground(Color.black);
         registerButton.setBounds(300, 250, 150, 50);
@@ -99,4 +115,3 @@ public class LogIn extends JFrame implements ActionListener {
         }
     }
 }
-
