@@ -10,6 +10,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
+
+
 
 public class PostPanel extends JPanel {
 
@@ -18,29 +21,34 @@ public class PostPanel extends JPanel {
     private JLabel postLabel;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
-    public PostPanel(MainFrame mainFrame, String userName) {
+    public PostPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.userName = userName;
+
         initializeUI();
     }
 
     private void initializeUI() {
-        setLayout(null);
-        //setBackground(Color.black);
-        //setSize(500, 888);
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.CENTER;
+        stylePanel(this);
+
 
         // Label "Welcome!"
-        postLabel = new JLabel("Welcome, " + (userName.isEmpty() ? "User" : userName) + "!");
-        //postLabel.setBounds(161, 295, 195, 60);
-        //postLabel.setForeground(Color.white);
-        //postLabel.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
-        //postLabel.setHorizontalTextPosition(JLabel.CENTER);
-        add(postLabel);
+        postLabel = new JLabel();
+        Dimension preferredSize = postLabel.getPreferredSize();
+        postLabel.setSize(preferredSize);
+        styleLabel(postLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(postLabel, gbc);
+
 
         // Post Button
         postButton = new JButton("Post");
-        postButton.setBounds(160, 360, 190, 75);
-        postButton.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+        styleButton(postButton);
+        gbc.gridy = 1;
+
         postButton.setFocusable(false);
         postButton.addActionListener(new ActionListener() {
             @Override
@@ -48,9 +56,23 @@ public class PostPanel extends JPanel {
                 postImage();
             }
         });
-        add(postButton);
+        add(postButton, gbc);
     }
-
+    public void updateUserName(){
+        String userName = SessionManager.getInstance().getCurrentUserName();
+        postLabel.setText("Welcome, " + (userName.isEmpty() ? "User" : userName) + "!");
+    }
+    private void styleLabel(JLabel label){
+        label.setForeground(Color.white);
+        label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+    }
+    private void styleButton(JButton button){
+        button.setPreferredSize(new Dimension(190, 75));
+        button.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+    }
+    private void stylePanel(JPanel panel){
+        panel.setBackground(Color.black);
+    }
     private void postImage() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", ".webp");
@@ -63,7 +85,7 @@ public class PostPanel extends JPanel {
                 Query query = new Query();
                 String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
                 query.blobExecute(sql, fileContent);
-                SessionManager.setCurrentFile(selectedFile);
+                SessionManager.getInstance().setCurrentFile(selectedFile);
                 //mainFrame.postSuccessful(selectedFile);
                 mainFrame.showFeedPanel(selectedFile); // This updates and displays the FeedPanel with the new file
             } catch (IOException error) {

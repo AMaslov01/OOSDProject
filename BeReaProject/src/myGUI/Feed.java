@@ -23,6 +23,7 @@ public class Feed extends JFrame implements ActionListener {
     JFrame frame = new JFrame();
     JPanel panel = new JPanel();
     Query query = new Query();
+    JButton comment = new JButton();
     String sql;
     final int FRAME_WIDTH = 500;
     final int FRAME_HEIGHT = 888;
@@ -41,9 +42,7 @@ public class Feed extends JFrame implements ActionListener {
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         int panel_height = 200;
 
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 70));
-
-
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 100, 0));
 
         //получение айди пользователя
         sql = "SELECT `userID` FROM `User` WHERE `username` = '" + userName + "'";
@@ -71,7 +70,15 @@ public class Feed extends JFrame implements ActionListener {
 
 
         //вывод моей пикчи
+
         JLabel label = new JLabel();
+        JLabel gap = new JLabel("Hello!");
+        gap.setPreferredSize(new Dimension(490, 170));
+        //настройки кнопки коммент
+        comment.setPreferredSize(new Dimension(100, 45));
+        comment.setText("Comment");
+        comment.setFont(new Font("JetBrains Mono", Font.BOLD,20));
+        //нужно в отдельный класс...^
         Image image = new ImageIcon(file.getAbsolutePath()).getImage();
         float width = image.getWidth(null);
         float height = image.getHeight(null);
@@ -87,7 +94,7 @@ public class Feed extends JFrame implements ActionListener {
         }
         int rdWidth =  Math.round(width);
         int rdHeight = Math.round(height);
-        panel_height += rdHeight;
+        panel_height += rdHeight + gap.getHeight() + comment.getHeight();
         int xLeftTopCorner = (int)(FRAME_WIDTH/2) - (rdWidth/2);
         int yLeftTopCorner = (int)(FRAME_HEIGHT/2) - (rdHeight/2);
         label.setBounds(xLeftTopCorner, yLeftTopCorner, rdWidth, rdHeight);
@@ -99,6 +106,8 @@ public class Feed extends JFrame implements ActionListener {
         label.setHorizontalTextPosition(JLabel.CENTER);
         label.setVerticalTextPosition(JLabel.TOP);
         panel.add(label);
+        panel.add(comment);
+        panel.add(gap);
 
         //добавление чужих пикчей-пикчей
         try {
@@ -123,8 +132,6 @@ public class Feed extends JFrame implements ActionListener {
 
                 float otherWidth = otherImage.getWidth(null);
                 float otherHeight = otherImage.getHeight(null);
-                System.out.println(otherWidth);
-                System.out.println(otherHeight);
                 float otherHeightDivisor = (otherHeight / FRAME_HEIGHT_WITH_GAP);
                 float otherWidthDivisor = (otherWidth / FRAME_WIDTH_WITH_GAP);
                 if (otherWidth > FRAME_WIDTH_WITH_GAP) {
@@ -137,7 +144,7 @@ public class Feed extends JFrame implements ActionListener {
                 }
                 int otherRdWidth = Math.round(otherWidth);
                 int otherRdHeight = Math.round(otherHeight);
-                panel_height += (otherRdHeight + 130);
+                panel_height += (otherRdHeight + 60);
                 int otherXLeftTopCorner = (int) (FRAME_WIDTH / 2) - (otherRdWidth / 2);
                 int otherYLeftTopCorner = (int) (FRAME_HEIGHT / 2) - (otherRdHeight / 2);
                 otherLabel.setBounds(otherXLeftTopCorner, otherYLeftTopCorner, otherRdWidth, otherRdHeight);
@@ -168,6 +175,12 @@ public class Feed extends JFrame implements ActionListener {
         frame.getContentPane().add(scrollPane);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        Timer timer = new Timer(10000, e -> {
+            frame.repaint();
+            System.out.println("Frame repainted!");
+        });
+        timer.start();
     }
 
     @Override

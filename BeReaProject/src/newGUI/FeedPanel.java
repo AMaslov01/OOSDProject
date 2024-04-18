@@ -3,6 +3,7 @@ package newGUI;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
@@ -25,12 +26,13 @@ public class FeedPanel extends JPanel {
 
     public void updateContent() {
         imagePanel.removeAll();
-        File file = SessionManager.getCurrentFile();
+        File file = SessionManager.getInstance().getCurrentFile();
         if (file != null) {
             displayImage(file, "My Picture");
         }
 
-        long[] friends = SessionManager.getFriends();
+        long[] friends = SessionManager.getInstance().getFriends();
+        System.out.println(Arrays.toString(friends));
         if (friends != null) {
             for (long friendId : friends) {
                 displayFriendImage(friendId);

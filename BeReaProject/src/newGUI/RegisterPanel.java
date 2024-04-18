@@ -19,29 +19,50 @@ public class RegisterPanel extends JPanel {
     }
 
     private void initializeUI() {
+        setPreferredSize(new Dimension(500,888));
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
+        stylePanel(this);
+        gbc.insets = new Insets(10, 5, 10, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
         // Username
+        JLabel label1 = new JLabel("Username:");
+        add(label1, gbc);
+        styleLabel(label1);
+        gbc.gridx = 1;
         userNameField = new JTextField(20);
-        add(new JLabel("Username:"), gbc);
         add(userNameField, gbc);
+        styleText(userNameField);
 
         // Password
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        JLabel label2 = new JLabel("Password:");
+        add(label2, gbc);
+        styleLabel(label2);
+        gbc.gridx = 1;
         passWordField = new JPasswordField(20);
-        add(new JLabel("Password:"), gbc);
         add(passWordField, gbc);
+        styleText(passWordField);
 
         // Confirm Password
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        JLabel label3 = new JLabel("Confirm:");
+        add(label3, gbc);
+        styleLabel(label3);
+        gbc.gridx = 1;
         confirmField = new JPasswordField(20);
-        add(new JLabel("Confirm Password:"), gbc);
         add(confirmField, gbc);
+        styleText(confirmField);
 
         // Register Button
+        gbc.gridy = 3;
         registerButton = new JButton("Register");
+        styleButton(registerButton);
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,5 +98,20 @@ public class RegisterPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "This Username Is Taken!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+    private void styleLabel(JLabel label){
+        label.setForeground(Color.white);
+        label.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
+    }
+    private void styleText(JTextField text){
+        text.setPreferredSize(new Dimension(100, 35));
+        text.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));
+    }
+    private void styleButton(JButton button){
+        button.setPreferredSize(new Dimension(160, 50));
+        button.setFont(new Font("JetBrains Mono", Font.PLAIN, 30));
+    }
+    private void stylePanel(JPanel panel){
+        panel.setBackground(Color.black);
     }
 }

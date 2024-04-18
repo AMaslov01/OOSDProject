@@ -109,8 +109,6 @@ public class Query {
             resultSet.beforeFirst();
             if(resultSet.next()){
                 res = resultSet.getBlob(1);
-                System.out.println(res);
-
             }
             else{
                 System.out.println("blob is null");

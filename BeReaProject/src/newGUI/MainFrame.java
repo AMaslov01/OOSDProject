@@ -4,12 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
+
 public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private LogInPanel loginPanel;
     private RegisterPanel registerPanel;
-    private PostPanel postPanel;
+    private  PostPanel postPanel;
     private FeedPanel feedPanel;
     private Query query = new Query();
 
@@ -17,9 +18,8 @@ public class MainFrame extends JFrame {
         super("BeReal");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(500, 888);
-        setResizable(false);
-        setLocationRelativeTo(null);
-        setVisible(true);
+
+
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -28,13 +28,17 @@ public class MainFrame extends JFrame {
         // Initialize panels
         loginPanel = new LogInPanel(this);
         registerPanel = new RegisterPanel(this);
-        postPanel = new PostPanel(this, "");
+        postPanel = new PostPanel(this);
         feedPanel = new FeedPanel(this);  // Initialize without user data
 
         cardPanel.add(loginPanel, "Login");
         cardPanel.add(registerPanel, "Register");
         cardPanel.add(postPanel, "Post");
         cardPanel.add(feedPanel, "Feed");
+
+        setResizable(false);
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     public void showLoginPanel() {
@@ -57,11 +61,14 @@ public class MainFrame extends JFrame {
     // Update session when user logs in
     public void updateUserSession(String userName) {
         long userId = query.fetchUserIdFromDatabase(userName);
-        SessionManager.setCurrentUserId(userId);
+        SessionManager.getInstance().setCurrentUserName(userName);
+
+        SessionManager.getInstance().setCurrentUserId(userId);
         long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
-        SessionManager.setFriends(friendsIds);
+        SessionManager.getInstance().setFriends(friendsIds);
 
         // Now update UI components
+        postPanel.updateUserName();
         feedPanel.updateContent();
         postPanel.setUserName(userName);
     }
