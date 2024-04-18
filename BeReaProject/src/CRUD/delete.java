@@ -22,7 +22,7 @@ public class delete {
             connection = DriverManager.getConnection(url, user, password);
 
             // Create Prepared Statement for updating data in the table
-            pstat = connection.prepareStatement("DELETE from User WHERE userID=?");
+            pstat = connection.prepareStatement("DELETE from `User` WHERE `UserID` = ?");
             pstat.setInt(1, userID);
 
             // Delete data from the table

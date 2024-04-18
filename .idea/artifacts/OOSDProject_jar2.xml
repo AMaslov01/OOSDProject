@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="OOSDProject:jar2">
+    <output-path>$PROJECT_DIR$/out/artifacts/OOSDProject_jar2</output-path>
+    <root id="archive" name="OOSDProject.jar">
+      <element id="module-output" name="OOSDProject" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/flatlaf-3.4.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lombok.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/BeReaProject/mysql-connector-j-8.3.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

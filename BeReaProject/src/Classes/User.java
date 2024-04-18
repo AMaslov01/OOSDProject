@@ -20,12 +20,12 @@ public class User {
         counter++;
     }
 
-    public BeReal publishBeReal(Image image, String caption, String music){
-        BeReal beReal = new BeReal();
-
-
-        return beReal;
-    }
+//    public BeReal publishBeReal(Image image, String caption, String music){
+//        BeReal beReal = new BeReal();
+//
+//
+//        return beReal;
+//    }
 
     // getters
     public int getUserID() {
