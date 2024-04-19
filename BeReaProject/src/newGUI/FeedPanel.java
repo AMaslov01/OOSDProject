@@ -1,6 +1,7 @@
 package newGUI;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.io.File;
 import java.util.Arrays;
@@ -9,6 +10,8 @@ public class FeedPanel extends JPanel {
     private JPanel imagePanel;
     private JScrollPane scrollPane;
     private Query query = new Query();
+    final float FRAME_WIDTH_WITH_GAP = 333;
+    final float FRAME_HEIGHT_WITH_GAP = 592;
 
     public FeedPanel(MainFrame mainFrame) {
         initializeUI();
@@ -17,11 +20,19 @@ public class FeedPanel extends JPanel {
     private void initializeUI() {
         setLayout(new BorderLayout());
         imagePanel = new JPanel();
+        stylePanel(imagePanel);
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.Y_AXIS)); // Setting up BoxLayout for vertical stacking
         scrollPane = new JScrollPane(imagePanel);
+        styleScroll(scrollPane);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
+        Timer timer = new Timer(10000, e -> {
+            updateContent();
+            System.out.println("Panel repainted!");
+        });
+        timer.start();
     }
 
     public void updateContent() {
@@ -44,14 +55,40 @@ public class FeedPanel extends JPanel {
 
     private void displayImage(File file, String label) {
         try {
-            ImageIcon icon = new ImageIcon(file.getAbsolutePath());
-            Image image = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-            JLabel picLabel = new JLabel(new ImageIcon(image), SwingConstants.CENTER);
-            picLabel.setText(label);
+            //setting panel for label
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            //setting textlabel
+            JLabel textLabel = new JLabel();
+            textLabel.setText(label);
+            styleLabel(textLabel);
+            panel.add(textLabel, BorderLayout.NORTH);
+            //setting picLabel
+            JLabel picLabel = new JLabel();
+            Image image = new ImageIcon(file.getAbsolutePath()).getImage();
+            float width = image.getWidth(null);
+            float height = image.getHeight(null);
+            float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
+            float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+            if(width > FRAME_WIDTH_WITH_GAP){
+                height = height/widthDivisor;
+                width = width/widthDivisor;
+            }
+            if(height > FRAME_HEIGHT_WITH_GAP){
+                width = width/heightDivisor;
+                height = height/heightDivisor;
+            }
+            int rdWidth =  Math.round(width);
+            int rdHeight = Math.round(height);
+            Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
+            picLabel.setIcon(new ImageIcon(scaledImage));
             styleLabel(picLabel);
-            picLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Ensure alignment in BoxLayout
+            Border border = BorderFactory.createLineBorder(Color.GREEN, 2); // 2-pixel width black line border
+            panel.setBorder(border);
+            panel.add(picLabel, BorderLayout.CENTER);
             //addMargin(picLabel);
-            imagePanel.add(picLabel);
+            stylePanel(panel);
+            imagePanel.add(panel);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error displaying image: " + label, "Image Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -60,22 +97,55 @@ public class FeedPanel extends JPanel {
     private void displayFriendImage(long friendId) {
         Image image = query.fetchFriendImage(friendId);
         if (image != null) {
-            ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(300, 300, Image.SCALE_SMOOTH));
-            JLabel imageLabel = new JLabel(imageIcon, SwingConstants.CENTER);
-            imageLabel.setText(String.valueOf(friendId));
-            styleLabel(imageLabel);
-            imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Ensure alignment in BoxLayout
-            //addMargin(imageLabel);
-            imagePanel.add(imageLabel);
+            //setting panel for label
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            //setting textlabel
+            JLabel textLabel = new JLabel();
+            textLabel.setText(String.valueOf(friendId));
+            styleLabel(textLabel);
+            panel.add(textLabel, BorderLayout.NORTH);
+            //setting picLabel
+            JLabel picLabel = new JLabel();
+            float width = image.getWidth(null);
+            float height = image.getHeight(null);
+            float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
+            float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+            if(width > FRAME_WIDTH_WITH_GAP){
+                height = height/widthDivisor;
+                width = width/widthDivisor;
+            }
+            if(height > FRAME_HEIGHT_WITH_GAP){
+                width = width/heightDivisor;
+                height = height/heightDivisor;
+            }
+            int rdWidth =  Math.round(width);
+            int rdHeight = Math.round(height);
+            Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
+            picLabel.setHorizontalTextPosition(JLabel.CENTER);
+            picLabel.setVerticalTextPosition(JLabel.TOP);
+            styleLabel(picLabel);
+            picLabel.setIcon(new ImageIcon(scaledImage));
+            panel.add(picLabel, BorderLayout.CENTER);
+            //adding panel to imagePanel
+            Border border = BorderFactory.createLineBorder(Color.GREEN, 2); // 2-pixel width black line border
+            panel.setBorder(border);
+            stylePanel(panel);
+            imagePanel.add(panel);
         } else {
             System.out.println("No image found for friend ID: " + friendId);
         }
     }
-
+    private void stylePanel(JPanel panel) {
+        panel.setBackground(Color.black);
+    }
+    private void styleScroll(JScrollPane scroll) {
+        scroll.setBackground(Color.black);
+    }
     private void styleLabel(JLabel label) {
-        label.setVerticalTextPosition(SwingConstants.BOTTOM);
-        label.setHorizontalTextPosition(SwingConstants.CENTER);
-        //label.setForeground(Color.white);
-        label.setFont(new Font("JetBrains Mono", Font.BOLD, 16));
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setVerticalAlignment(JLabel.CENTER);
+        label.setForeground(Color.white);
+        label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
 }

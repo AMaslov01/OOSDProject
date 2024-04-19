@@ -61,6 +61,9 @@ public class RegisterPanel extends JPanel {
 
         // Register Button
         gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridwidth = 2;
         registerButton = new JButton("Register");
         styleButton(registerButton);
         registerButton.addActionListener(new ActionListener() {
