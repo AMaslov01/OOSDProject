@@ -30,7 +30,7 @@ public class PostPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.black);
         logoutButton = new JButton("Log Out");
-        logoutButton.setFocusable(true);
+        logoutButton.setFocusable(false);
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,7 +112,7 @@ public class PostPanel extends JPanel {
             // Show loading panel
             mainFrame.showLoadingPanel();
 
-            // Create a SwingWorker to handle the image upload asynchronously
+            // Create a SwingWorker to handle the iage upload asynchronously
             SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                 @Override
                 protected Boolean doInBackground() throws Exception {
@@ -128,6 +128,11 @@ public class PostPanel extends JPanel {
 
                         sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES ("+ imageID[0][0] +"," + SessionManager.getInstance().getCurrentUserId() + ")";
                         query.execute(sql);
+
+                        sql = "SELECT MAX(`berealID`) FROM `BeReal`";
+                        Object[][] beRealId = new Object[1][1];
+                        beRealId = query.retrieve(sql);
+                        SessionManager.getInstance().setCurrentBeRealId((long) beRealId[0][0]);
 
                         SessionManager.getInstance().setCurrentFile(selectedFile);
                         System.out.println("Successful upload");

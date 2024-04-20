@@ -44,7 +44,7 @@ public class SessionManager {
 
     public void setCurrentBeRealId(long beRealId){ this.beRealId = beRealId;}
 
-    public long getBeRealId(){ return beRealId; }
+    public long getCurrentBeRealId(){ return beRealId; }
 
     public static SessionManager getInstance() {
         return instance;

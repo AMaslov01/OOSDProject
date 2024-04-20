@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 public class FeedPanel extends JPanel {
@@ -135,7 +136,6 @@ public class FeedPanel extends JPanel {
             JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
             stylePanel(eastPanel);
             JTextField commentFields = new JTextField();
-            String commentText = commentFields.getText();
             styleTextField(commentFields);
             eastPanel.add(commentFields);
             commentPanel.add(eastPanel, BorderLayout.CENTER);
@@ -144,7 +144,22 @@ public class FeedPanel extends JPanel {
             comment.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','[value-2]','[value-3]')";
+                    String commentText = commentFields.getText();
+                    if(!commentText.isEmpty()) {
+                        long userID = SessionManager.getInstance().getCurrentUserId();
+                        long beRealId = SessionManager.getInstance().getCurrentBeRealId();
+                        System.out.println("text: " + commentText);
+                        String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+                        commentFields.setText("");
+                        try {
+                            query.execute(sql);
+                        } catch (SQLException er) {
+                            er.printStackTrace();
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(mainFrame, "Empty comments not allowed!", "Comment Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             });
 
@@ -207,6 +222,53 @@ public class FeedPanel extends JPanel {
             //Border border = BorderFactory.createLineBorder(Color.WHITE, 0); // 2-pixel width white line border
             //panel.setBorder(border);
             stylePanel(panel);
+
+            // Setting Comment Panel
+            JPanel commentPanel = new JPanel(new BorderLayout());
+            stylePanel(commentPanel);
+
+            // Setting West Comment Panel
+            JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            stylePanel(westPanel);
+            JButton comment = new JButton("Comment");
+            styleButton(comment);
+            westPanel.add(comment);
+            commentPanel.add(westPanel, BorderLayout.WEST);
+
+            // Setting East Comment Panel
+            JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            stylePanel(eastPanel);
+            JTextField commentFields = new JTextField();
+            styleTextField(commentFields);
+            eastPanel.add(commentFields);
+            commentPanel.add(eastPanel, BorderLayout.CENTER);
+
+            // Comment Button Action Listener
+            comment.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String commentText = commentFields.getText();
+                    if(!commentText.isEmpty()) {
+                        long userID = SessionManager.getInstance().getCurrentUserId();
+                        String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE `userID` = " + friendId;
+                        Object[][] beRealId = new Object[1][1];
+                        try {
+                            beRealId = query.retrieve(sql);
+                            System.out.println("text: " + commentText);
+                            sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId[0][0] + "')";
+                            commentFields.setText("");
+                            query.execute(sql);
+                        } catch (SQLException er) {
+                            er.printStackTrace();
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(mainFrame, "Empty comments not allowed!", "Comment Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+            panel.add(commentPanel, BorderLayout.SOUTH);
+
             imagePanel.add(panel);
         } else {
             System.out.println("No image found for friend ID: " + friendId);

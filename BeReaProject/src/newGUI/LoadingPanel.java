@@ -20,7 +20,7 @@ public class LoadingPanel extends JPanel {
 
         //loadingLabel = new JLabel("Loading...", loadingIcon, JLabel.CENTER);
         loadingLabel = new JLabel(loadingIcon);
-        loadingLabel.setBounds(95, 260, 300, 300);
+        loadingLabel.setBounds(110, 260, 300, 300);
         add(loadingLabel);
         setBackground(Color.BLACK);
     }
