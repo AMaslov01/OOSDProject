@@ -30,14 +30,14 @@ public class PostPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.black);
         logoutButton = new JButton("Log Out");
-        styleButtonLogOut(logoutButton);
-        logoutButton.setFocusable(false);
+        logoutButton.setFocusable(true);
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 logout();
             }
         });
+        styleButtonLogOut(logoutButton);
         topPanel.add(logoutButton, BorderLayout.EAST);
         topPanel.setOpaque(true);
         add(topPanel, BorderLayout.NORTH);
@@ -89,9 +89,10 @@ public class PostPanel extends JPanel {
     }
 
     private void styleButtonLogOut(JButton button){
+        button.setOpaque(true);
         button.setPreferredSize(new Dimension(120, 45));
-        button.setBackground(Color.black);
-        button.setForeground(Color.white);
+        button.setForeground(Color.WHITE);
+        button.setBackground(Color.BLACK);
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
