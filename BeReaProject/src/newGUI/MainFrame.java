@@ -12,7 +12,7 @@ public class MainFrame extends JFrame {
     private RegisterPanel registerPanel;
     private  PostPanel postPanel;
     private FeedPanel feedPanel;
-    private Query query = new Query();
+
 
     public MainFrame() {
         super("BeReal");
@@ -59,6 +59,7 @@ public class MainFrame extends JFrame {
 
     // Update session when user logs in
     public void updateUserSession(String userName) {
+        Query query = new Query();
         long userId = query.fetchUserIdFromDatabase(userName);
         SessionManager.getInstance().setCurrentUserName(userName);
 

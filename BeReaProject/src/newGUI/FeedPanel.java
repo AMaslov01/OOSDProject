@@ -30,7 +30,7 @@ public class FeedPanel extends JPanel {
         topPanel.setBackground(Color.black);
         logoutButton = new JButton("Log Out");
         styleButtonLogOut(logoutButton);
-        logoutButton.setFocusable(false);
+        logoutButton.setFocusable(true);
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -50,11 +50,11 @@ public class FeedPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
-//        Timer timer = new Timer(100000, e -> {
-//            updateContent();
-//            System.out.println("Panel repainted!");
-//        });
-//        timer.start();
+/*        Timer timer = new Timer(100000, e -> {
+            updateContent();
+            System.out.println("Panel repainted!");
+        });
+        timer.start();*/
     }
 
     public void updateContent() {
@@ -115,7 +115,38 @@ public class FeedPanel extends JPanel {
             Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
             panel.setBorder(border);
             panel.add(picLabel, BorderLayout.CENTER);
-            //addMargin(picLabel);
+
+            // Setting Comment Panel
+            JPanel commentPanel = new JPanel(new BorderLayout());
+            stylePanel(commentPanel);
+
+            // Setting West Comment Panel
+            JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            stylePanel(westPanel);
+            JButton comment = new JButton("Comment");
+            styleButton(comment);
+            westPanel.add(comment);
+            commentPanel.add(westPanel, BorderLayout.WEST);
+
+            // Setting East Comment Panel
+            JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            stylePanel(eastPanel);
+            JTextField commentFields = new JTextField();
+            String commentText = commentFields.getText();
+            styleTextField(commentFields);
+            eastPanel.add(commentFields);
+            commentPanel.add(eastPanel, BorderLayout.CENTER);
+
+            // Comment Button Action Listener
+            comment.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','[value-2]','[value-3]')";
+                }
+            });
+
+            panel.add(commentPanel, BorderLayout.SOUTH);
+
             stylePanel(panel);
             imagePanel.add(panel);
         } catch (Exception e) {
@@ -198,6 +229,20 @@ public class FeedPanel extends JPanel {
         label.setVerticalAlignment(JLabel.CENTER);
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+    }
+
+    private void styleButton(JButton button){
+        button.setSize(new Dimension(100, 55));
+        button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
+    }
+
+    private void styleTextField(JTextField text){
+        text.setPreferredSize(new Dimension(320, 32));
+        text.setBackground(Color.BLACK);
+        text.setForeground(Color.WHITE);
+        Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
+        text.setBorder(border);
+        text.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
     private void styleButtonLogOut(JButton button){
