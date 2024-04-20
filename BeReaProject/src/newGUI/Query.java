@@ -1,6 +1,7 @@
 package newGUI;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -148,6 +149,44 @@ public class Query {
             e.printStackTrace();
         }
         return null; // Return null or throw an exception if user not found or error occurs
+    }
+
+    /*
+     * Asynchronously authenticate a user.
+     * username: The username of the user attempting to log in.
+     * password: The password of the user.
+     * callback: Callback that handles what happens after login attempt.
+     */
+    public void authenticateUserAsync(String username, String password, SwingWorker<Boolean, Void> callback) {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return authenticateUser(username, password);
+            }
+
+            @Override
+            protected void done() {
+                callback.run();
+            }
+        };
+        worker.execute();
+    }
+
+    /*
+     * Synchronously authenticate a user.
+     * username: The username.
+     * password: The password.
+     * return True if authentication is successful, false otherwise.
+     */
+    public boolean authenticateUser(String username, String password) throws SQLException {
+        String sql = "SELECT `userID` FROM `User` WHERE `username` = ? AND `password` = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next(); // Return true if a row exists (i.e., user found)
+        }
     }
 
     public Query() {}

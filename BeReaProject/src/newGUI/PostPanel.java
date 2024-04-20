@@ -1,7 +1,5 @@
 package newGUI;
 
-import CRUD.Query;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -10,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.concurrent.ExecutionException;
 
 public class PostPanel extends JPanel {
 
@@ -102,26 +101,63 @@ public class PostPanel extends JPanel {
 
     private void postImage() {
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", ".webp");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", "webp");
         fileChooser.setFileFilter(filter);
         int returnValue = fileChooser.showOpenDialog(this);
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            try {
-                File selectedFile = fileChooser.getSelectedFile();
-                byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
-                Query query = new Query();
-                String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
-                query.blobExecute(sql, fileContent);
-                SessionManager.getInstance().setCurrentFile(selectedFile);
-                //mainFrame.postSuccessful(selectedFile);
-                mainFrame.showFeedPanel(selectedFile); // This updates and displays the FeedPanel with the new file
-            } catch (IOException error) {
-                JOptionPane.showMessageDialog(this, "Failed to upload image.", "Error", JOptionPane.ERROR_MESSAGE);
-                error.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            File selectedFile = fileChooser.getSelectedFile();
+
+            // Show loading panel
+            mainFrame.showLoadingPanel();
+
+            // Create a SwingWorker to handle the image upload asynchronously
+            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    try {
+                        byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
+                        Query query = new Query();
+                        String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
+                        query.blobExecute(sql, fileContent);
+
+                        sql = "SELECT MAX(`imageID`) FROM `Image`";
+                        Object[][] imageID = new Object[1][1];
+                        imageID = query.retrieve(sql);
+
+                        sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES ("+ imageID[0][0] +"," + SessionManager.getInstance().getCurrentUserId() + ")";
+                        query.execute(sql);
+
+                        SessionManager.getInstance().setCurrentFile(selectedFile);
+                        System.out.println("Successful upload");
+                        mainFrame.getFeedPanel().updateContent(); // Direct call to update content
+                        System.out.println("Updated feed panel");
+                        return true; // Successful upload
+                    } catch (IOException error) {
+                        JOptionPane.showMessageDialog(null, "Failed to upload image.", "Error", JOptionPane.ERROR_MESSAGE);
+                        error.printStackTrace();
+                        return false; // Upload failed
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        if (get()) {
+                            mainFrame.showFeedPanel(selectedFile); // This displays the FeedPanel with the new file
+                        } else {
+                            mainFrame.showPostPanel(); // Return to the post panel on failure
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        mainFrame.showPostPanel(); // Return to the post panel on error
+                    }
+                }
+            };
+            worker.execute(); // Start the worker thread
         }
     }
 

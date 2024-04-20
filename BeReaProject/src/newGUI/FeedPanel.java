@@ -58,6 +58,7 @@ public class FeedPanel extends JPanel {
     }
 
     public void updateContent() {
+        System.out.println("Started updateContent");
         imagePanel.removeAll();
         File file = SessionManager.getInstance().getCurrentFile();
         if (file != null) {
@@ -65,7 +66,7 @@ public class FeedPanel extends JPanel {
         }
 
         long[] friends = SessionManager.getInstance().getFriends();
-        System.out.println(Arrays.toString(friends));
+        //System.out.println(Arrays.toString(friends));
         if (friends != null) {
             for (long friendId : friends) {
                 displayFriendImage(friendId);
@@ -74,9 +75,11 @@ public class FeedPanel extends JPanel {
 
         imagePanel.revalidate();
         imagePanel.repaint();
+        System.out.println("Finished updateContent");
     }
 
     private void displayImage(File file, String label) {
+        System.out.println("Started displayImage");
         try {
             // Setting panel for label
             JPanel panel = new JPanel();
@@ -112,8 +115,8 @@ public class FeedPanel extends JPanel {
             Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
             picLabel.setIcon(new ImageIcon(scaledImage));
             styleLabel(picLabel);
-            Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
-            panel.setBorder(border);
+            //Border border = BorderFactory.createLineBorder(Color.WHITE, 0); // 2-pixel width white line border
+            //panel.setBorder(border);
             panel.add(picLabel, BorderLayout.CENTER);
             //addMargin(picLabel);
             stylePanel(panel);
@@ -121,10 +124,13 @@ public class FeedPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error displaying image: " + label, "Image Error", JOptionPane.ERROR_MESSAGE);
         }
+        System.out.println("Finished displayImage");
     }
 
     private void displayFriendImage(long friendId) {
+        System.out.println("Fetching friend image");
         Image image = query.fetchFriendImage(friendId);
+        System.out.println("Fetched friend image");
         if (image != null) {
             // Setting panel for label
             JPanel panel = new JPanel();
@@ -132,7 +138,9 @@ public class FeedPanel extends JPanel {
 
             // Setting textlabel
             JLabel textLabel = new JLabel();
+            System.out.println("Fetching friend name");
             textLabel.setText(String.valueOf(query.fetchUserNameFromDatabase(friendId)));
+            System.out.println("Fetched friend name");
             styleLabel(textLabel);
             panel.add(textLabel, BorderLayout.NORTH);
 
@@ -165,8 +173,8 @@ public class FeedPanel extends JPanel {
             panel.add(picLabel, BorderLayout.CENTER);
 
             // Adding panel to imagePanel
-            Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
-            panel.setBorder(border);
+            //Border border = BorderFactory.createLineBorder(Color.WHITE, 0); // 2-pixel width white line border
+            //panel.setBorder(border);
             stylePanel(panel);
             imagePanel.add(panel);
         } else {

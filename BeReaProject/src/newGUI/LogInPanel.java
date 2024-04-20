@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 public class LogInPanel extends JPanel {
     private JTextField userNameField;
@@ -57,27 +58,40 @@ public class LogInPanel extends JPanel {
         logInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userName = userNameField.getText();
-                String password = passWordField.getText();
-                if(userName.isEmpty() || password.isEmpty()){
+                String userName = userNameField.getText().trim();
+                String password = new String(passWordField.getPassword());
+                if (userName.isEmpty() || password.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "No Empty Fields Allowed!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    Query query = new Query();
-                    String sql = "SELECT * FROM `User` WHERE `username` = '" + userName + "' AND `password` = '" + password + "';";
-                    Object[][] user = new Object[0][];
-                    try {
-                        user = query.retrieve(sql);
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    if(user.length != 0){
-                        mainFrame.updateUserSession(userName);
-                        System.out.println(SessionManager.getInstance().getCurrentUserName());
-                        //JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
-                        mainFrame.showPostPanel();
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Incorrect Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                    mainFrame.showLoadingPanel();
+
+                    // Create a SwingWorker to handle login asynchronously
+                    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
+                            // Perform the authentication check asynchronously
+                            mainFrame.updateUserSession(userName);
+                            Query query = new Query();
+                            return query.authenticateUser(userName, password);
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                if (get()) {
+                                    SwingUtilities.invokeLater(() -> mainFrame.showPostPanel());
+                                } else {
+                                    SwingUtilities.invokeLater(() -> {
+                                        mainFrame.showLoginPanel();
+                                        JOptionPane.showMessageDialog(null, "Incorrect Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
+                                    });
+                                }
+                            } catch (InterruptedException | ExecutionException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    };
+                    worker.execute(); // Start the worker thread
                 }
             }
         });

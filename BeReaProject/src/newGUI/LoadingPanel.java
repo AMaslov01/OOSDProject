@@ -2,16 +2,26 @@ package newGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
+
 
 public class LoadingPanel extends JPanel {
     private JLabel loadingLabel;
+    private MainFrame mainFrame; // Reference to the main application window for navigation
 
-    public LoadingPanel() {
-        setLayout(new BorderLayout());
-        Icon loadingIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("loding.gif")));
-        loadingLabel = new JLabel("Loading...", loadingIcon, JLabel.CENTER);
-        add(loadingLabel, BorderLayout.CENTER);
+    public LoadingPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        initializeUI();
+    }
+
+    private void initializeUI() {
+        setLayout(null);
+        //Image loadingIcon = new ImageIcon(getClass().getResource("/loading.gif")).getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        ImageIcon loadingIcon = new ImageIcon(getClass().getResource("/loading.gif"));
+
+        //loadingLabel = new JLabel("Loading...", loadingIcon, JLabel.CENTER);
+        loadingLabel = new JLabel(loadingIcon);
+        loadingLabel.setBounds(95, 260, 300, 300);
+        add(loadingLabel);
         setBackground(Color.BLACK);
     }
 }
