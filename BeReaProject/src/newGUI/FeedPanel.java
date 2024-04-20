@@ -49,41 +49,48 @@ public class FeedPanel extends JPanel {
                 displayFriendImage(friendId);
             }
         }
+
         imagePanel.revalidate();
         imagePanel.repaint();
     }
 
     private void displayImage(File file, String label) {
         try {
-            //setting panel for label
+            // Setting panel for label
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
-            //setting textlabel
+
+            // Setting textlabel
             JLabel textLabel = new JLabel();
             textLabel.setText(label);
             styleLabel(textLabel);
             panel.add(textLabel, BorderLayout.NORTH);
-            //setting picLabel
+
+            // Setting picLabel
             JLabel picLabel = new JLabel();
             Image image = new ImageIcon(file.getAbsolutePath()).getImage();
             float width = image.getWidth(null);
             float height = image.getHeight(null);
             float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
             float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+
             if(width > FRAME_WIDTH_WITH_GAP){
                 height = height/widthDivisor;
                 width = width/widthDivisor;
             }
+
             if(height > FRAME_HEIGHT_WITH_GAP){
                 width = width/heightDivisor;
                 height = height/heightDivisor;
             }
+
             int rdWidth =  Math.round(width);
             int rdHeight = Math.round(height);
+
             Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
             picLabel.setIcon(new ImageIcon(scaledImage));
             styleLabel(picLabel);
-            Border border = BorderFactory.createLineBorder(Color.GREEN, 2); // 2-pixel width black line border
+            Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
             panel.setBorder(border);
             panel.add(picLabel, BorderLayout.CENTER);
             //addMargin(picLabel);
@@ -97,38 +104,46 @@ public class FeedPanel extends JPanel {
     private void displayFriendImage(long friendId) {
         Image image = query.fetchFriendImage(friendId);
         if (image != null) {
-            //setting panel for label
+            // Setting panel for label
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
-            //setting textlabel
+
+            // Setting textlabel
             JLabel textLabel = new JLabel();
-            textLabel.setText(String.valueOf(friendId));
+            textLabel.setText(String.valueOf(query.fetchUserNameFromDatabase(friendId)));
             styleLabel(textLabel);
             panel.add(textLabel, BorderLayout.NORTH);
-            //setting picLabel
+
+            // Setting picLabel
             JLabel picLabel = new JLabel();
+
             float width = image.getWidth(null);
             float height = image.getHeight(null);
             float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
             float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+
             if(width > FRAME_WIDTH_WITH_GAP){
                 height = height/widthDivisor;
                 width = width/widthDivisor;
             }
+
             if(height > FRAME_HEIGHT_WITH_GAP){
                 width = width/heightDivisor;
                 height = height/heightDivisor;
             }
+
             int rdWidth =  Math.round(width);
             int rdHeight = Math.round(height);
+
             Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
             picLabel.setHorizontalTextPosition(JLabel.CENTER);
             picLabel.setVerticalTextPosition(JLabel.TOP);
             styleLabel(picLabel);
             picLabel.setIcon(new ImageIcon(scaledImage));
             panel.add(picLabel, BorderLayout.CENTER);
-            //adding panel to imagePanel
-            Border border = BorderFactory.createLineBorder(Color.GREEN, 2); // 2-pixel width black line border
+
+            // Adding panel to imagePanel
+            Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
             panel.setBorder(border);
             stylePanel(panel);
             imagePanel.add(panel);
@@ -136,12 +151,15 @@ public class FeedPanel extends JPanel {
             System.out.println("No image found for friend ID: " + friendId);
         }
     }
+
     private void stylePanel(JPanel panel) {
         panel.setBackground(Color.black);
     }
+
     private void styleScroll(JScrollPane scroll) {
         scroll.setBackground(Color.black);
     }
+
     private void styleLabel(JLabel label) {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setVerticalAlignment(JLabel.CENTER);

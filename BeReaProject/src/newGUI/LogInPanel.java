@@ -5,8 +5,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.Arrays;
-
 
 public class LogInPanel extends JPanel {
     private JTextField userNameField;
@@ -98,21 +96,26 @@ public class LogInPanel extends JPanel {
         });
         add(registerButton, gbc);
     }
+
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
     }
+
     private void styleText(JTextField text){
         text.setPreferredSize(new Dimension(100, 35));
         text.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));
     }
+
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(160, 50));
-        button.setFont(new Font("JetBrains Mono", Font.PLAIN, 30));
+        button.setFont(new Font("JetBrains Mono", Font.PLAIN, 25));
     }
+
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
     }
+
     public JTextField getUserNameField() {
         return userNameField;
     }

@@ -19,8 +19,6 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(500, 888);
 
-
-
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         add(cardPanel);

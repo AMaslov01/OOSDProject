@@ -10,9 +10,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-
-
 
 public class PostPanel extends JPanel {
 
@@ -33,7 +30,6 @@ public class PostPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         stylePanel(this);
 
-
         // Label "Welcome!"
         postLabel = new JLabel();
         Dimension preferredSize = postLabel.getPreferredSize();
@@ -42,7 +38,6 @@ public class PostPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(postLabel, gbc);
-
 
         // Post Button
         postButton = new JButton("Post");
@@ -58,26 +53,32 @@ public class PostPanel extends JPanel {
         });
         add(postButton, gbc);
     }
+
     public void updateUserName(){
         String userName = SessionManager.getInstance().getCurrentUserName();
         postLabel.setText("Welcome, " + (userName.isEmpty() ? "User" : userName) + "!");
     }
+
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
+
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(190, 75));
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
+
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
     }
+
     private void postImage() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", ".webp");
         fileChooser.setFileFilter(filter);
         int returnValue = fileChooser.showOpenDialog(this);
+
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             try {
                 File selectedFile = fileChooser.getSelectedFile();

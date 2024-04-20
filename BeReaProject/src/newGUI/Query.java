@@ -133,5 +133,22 @@ public class Query {
         return null;
     }
 
+    // Method for returning a name of a certain user/friend
+    public String fetchUserNameFromDatabase(long userId) {
+        String sql = "SELECT `username` FROM `User` WHERE `userID` = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null or throw an exception if user not found or error occurs
+    }
+
     public Query() {}
 }
