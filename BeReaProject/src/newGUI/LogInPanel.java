@@ -11,6 +11,7 @@ public class LogInPanel extends JPanel {
     private JPasswordField passWordField;
     private JButton logInButton;
     private JButton registerButton;
+    private JButton logoutButton;
     private MainFrame mainFrame;  // Reference to the main application window
 
     public LogInPanel(MainFrame mainFrame) {
@@ -72,8 +73,7 @@ public class LogInPanel extends JPanel {
                     if(user.length != 0){
                         mainFrame.updateUserSession(userName);
                         System.out.println(SessionManager.getInstance().getCurrentUserName());
-                        JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
-                       // System.out.println(Arrays.toString(SessionManager.getFriends()));
+                        //JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
                         mainFrame.showPostPanel();
                     } else {
                         JOptionPane.showMessageDialog(null, "Incorrect Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -110,6 +110,11 @@ public class LogInPanel extends JPanel {
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(160, 50));
         button.setFont(new Font("JetBrains Mono", Font.PLAIN, 25));
+    }
+
+    public void clearTextFields() {
+        this.userNameField.setText("");
+        this.passWordField.setText("");
     }
 
     private void stylePanel(JPanel panel){

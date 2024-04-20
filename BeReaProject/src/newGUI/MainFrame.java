@@ -40,6 +40,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showLoginPanel() {
+        loginPanel.clearTextFields(); // Clear text fields when returning to the panel
         cardLayout.show(cardPanel, "Login");
     }
 

@@ -84,7 +84,7 @@ public class Register extends JFrame implements ActionListener {
                     String sql2 = "INSERT INTO User(username, password) VALUES('" + userName + "','" + password + "')";
                     //System.out.println(sql2);
                     query.execute(sql2);
-                    JOptionPane.showMessageDialog(null, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    //JOptionPane.showMessageDialog(null, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
                     register.dispose();
                     JFrame logIn = new LogIn();
                 }

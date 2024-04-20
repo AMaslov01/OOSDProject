@@ -3,22 +3,44 @@ package newGUI;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Arrays;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
     private JScrollPane scrollPane;
+    private JButton logoutButton;
+    private MainFrame mainFrame;
     private Query query = new Query();
     final float FRAME_WIDTH_WITH_GAP = 333;
     final float FRAME_HEIGHT_WITH_GAP = 592;
 
     public FeedPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         initializeUI();
     }
 
     private void initializeUI() {
         setLayout(new BorderLayout());
+
+        // Panel for the logout button in the top right corner
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.black);
+        logoutButton = new JButton("Log Out");
+        styleButtonLogOut(logoutButton);
+        logoutButton.setFocusable(false);
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+        topPanel.add(logoutButton, BorderLayout.EAST);
+        topPanel.setOpaque(true);
+        add(topPanel, BorderLayout.NORTH);
+
         imagePanel = new JPanel();
         stylePanel(imagePanel);
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.Y_AXIS)); // Setting up BoxLayout for vertical stacking
@@ -28,11 +50,11 @@ public class FeedPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
-        Timer timer = new Timer(10000, e -> {
-            updateContent();
-            System.out.println("Panel repainted!");
-        });
-        timer.start();
+//        Timer timer = new Timer(100000, e -> {
+//            updateContent();
+//            System.out.println("Panel repainted!");
+//        });
+//        timer.start();
     }
 
     public void updateContent() {
@@ -152,6 +174,17 @@ public class FeedPanel extends JPanel {
         }
     }
 
+    private void logout() {
+        // Clear session data
+        SessionManager.getInstance().setCurrentUserName(null);
+        SessionManager.getInstance().setCurrentUserId(-1);
+        SessionManager.getInstance().setFriends(null);
+        SessionManager.getInstance().setCurrentFile(null);
+
+        // Navigate back to the Login panel
+        mainFrame.showLoginPanel();
+    }
+
     private void stylePanel(JPanel panel) {
         panel.setBackground(Color.black);
     }
@@ -165,5 +198,12 @@ public class FeedPanel extends JPanel {
         label.setVerticalAlignment(JLabel.CENTER);
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+    }
+
+    private void styleButtonLogOut(JButton button){
+        button.setPreferredSize(new Dimension(120, 45));
+        button.setBackground(Color.black);
+        button.setForeground(Color.white);
+        button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 }

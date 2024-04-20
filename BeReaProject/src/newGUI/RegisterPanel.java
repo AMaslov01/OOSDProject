@@ -95,7 +95,7 @@ public class RegisterPanel extends JPanel {
             if (array.length == 0) {
                 String sql2 = "INSERT INTO User(username, password) VALUES('" + userName + "','" + password + "')";
                 query.execute(sql2);
-                JOptionPane.showMessageDialog(this, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                //JOptionPane.showMessageDialog(this, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
                 mainFrame.showLoginPanel(); // Navigate back to the login panel after successful registration
             } else {
                 JOptionPane.showMessageDialog(this, "This Username Is Taken!", "Error", JOptionPane.ERROR_MESSAGE);

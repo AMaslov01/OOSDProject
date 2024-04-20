@@ -91,7 +91,7 @@ public class LogIn extends JFrame implements ActionListener {
                     sql = "SELECT * FROM `User` WHERE `username` = '" + userName + "' and `password` = '" + password + "';";
                     array = query.retrieve(sql);
                     if(array.length != 0){
-                        JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "LogIn Successful!", "Welcome Back!", JOptionPane.INFORMATION_MESSAGE);
                         logIn.dispose();
                         JFrame post = new Post(userName);
                         //System.out.println(post.getUserName());

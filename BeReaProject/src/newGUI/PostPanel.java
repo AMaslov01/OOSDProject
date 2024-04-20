@@ -14,36 +14,54 @@ import java.nio.file.Files;
 public class PostPanel extends JPanel {
 
     private String userName;
-    private JButton postButton;
+    private JButton postButton, logoutButton;
     private JLabel postLabel;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
     public PostPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-
         initializeUI();
     }
 
     private void initializeUI() {
-        this.setLayout(new GridBagLayout());
+        // Set the overall panel layout
+        setLayout(new BorderLayout());
+
+        // Panel for the logout button in the top right corner
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.black);
+        logoutButton = new JButton("Log Out");
+        styleButtonLogOut(logoutButton);
+        logoutButton.setFocusable(false);
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logout();
+            }
+        });
+        topPanel.add(logoutButton, BorderLayout.EAST);
+        topPanel.setOpaque(true);
+        add(topPanel, BorderLayout.NORTH);
+
+        // Center panel for other UI components
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.CENTER;
-        stylePanel(this);
+        stylePanel(centerPanel);
 
-        // Label "Welcome!"
+        // Welcome label
         postLabel = new JLabel();
         Dimension preferredSize = postLabel.getPreferredSize();
         postLabel.setSize(preferredSize);
         styleLabel(postLabel);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(postLabel, gbc);
+        centerPanel.add(postLabel, gbc);
 
         // Post Button
         postButton = new JButton("Post");
         styleButton(postButton);
         gbc.gridy = 1;
-
         postButton.setFocusable(false);
         postButton.addActionListener(new ActionListener() {
             @Override
@@ -51,7 +69,9 @@ public class PostPanel extends JPanel {
                 postImage();
             }
         });
-        add(postButton, gbc);
+        centerPanel.add(postButton, gbc);
+
+        add(centerPanel, BorderLayout.CENTER);
     }
 
     public void updateUserName(){
@@ -67,6 +87,13 @@ public class PostPanel extends JPanel {
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(190, 75));
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+    }
+
+    private void styleButtonLogOut(JButton button){
+        button.setPreferredSize(new Dimension(120, 45));
+        button.setBackground(Color.black);
+        button.setForeground(Color.white);
+        button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
     private void stylePanel(JPanel panel){
@@ -96,6 +123,17 @@ public class PostPanel extends JPanel {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void logout() {
+        // Clear session data
+        SessionManager.getInstance().setCurrentUserName(null);
+        SessionManager.getInstance().setCurrentUserId(-1);
+        SessionManager.getInstance().setFriends(null);
+        SessionManager.getInstance().setCurrentFile(null);
+
+        // Navigate back to the Login panel
+        mainFrame.showLoginPanel();
     }
 
     public void setUserName(String userName) {
