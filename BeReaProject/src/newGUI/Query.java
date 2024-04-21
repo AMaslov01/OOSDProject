@@ -134,6 +134,51 @@ public class Query {
         return null;
     }
 
+    public String[][] fetchUserComments(long beRealId) {
+        String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet resultSet = statement.executeQuery(sql);
+            resultSet.last();
+            int rows = resultSet.getRow();
+            System.out.println("rows: " + rows);
+            resultSet.beforeFirst();
+            String[][] comments = new String[rows][2];
+            int i = 0;
+            while (resultSet.next()) {
+                for (int j = 1; j <= 2; j++) {
+                    comments[i][j - 1] = resultSet.getString(j);
+                }
+                i++;
+            }
+            return comments;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving friend's comments: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public long fetchBeRealId(long userId) {
+        String sql = "SELECT `berealID` FROM `BeReal` WHERE userID = " + userId;
+        long beRealId = 0;
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            if(resultSet.next()){
+                beRealId = resultSet.getLong(1);
+            }
+            return beRealId;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving user's berealID: " + e.getMessage());
+        }
+        return beRealId;
+    }
+
     // Method for returning a name of a certain user/friend
     public String fetchUserNameFromDatabase(long userId) {
         String sql = "SELECT `username` FROM `User` WHERE `userID` = ?";

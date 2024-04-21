@@ -160,13 +160,7 @@ public class FeedPanel extends JPanel {
             // Setting Array for comments
 
             long beRealId = SessionManager.getInstance().getCurrentBeRealId();
-            String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId ;
-            Object[][] comments = query.retrieve(sql);
-            /*for(int i = 0; i < comments.length; i ++){
-                for(int j = 0; j < 2; j ++){
-                    System.out.println(comments[i][j]);
-                }
-            }*/
+            String[][] comments = query.fetchUserComments(beRealId);
 
             // Setting Comment Button for West Comment Panel
             JPanel westPanel = new JPanel();
@@ -177,8 +171,8 @@ public class FeedPanel extends JPanel {
             westPanel.add(comment);
 
             // Setting UserName Labels for West Comment Panel
-            for(int i = 0; i < comments.length; i ++){
-                JLabel userName = new JLabel((String)comments[i][0]);
+            for (String[] strings : comments) {
+                JLabel userName = new JLabel((String) strings[0]);
                 styleCommentLabel(userName);
                 westPanel.add(userName);
                 //System.out.println(i);
@@ -195,8 +189,8 @@ public class FeedPanel extends JPanel {
             eastPanel.add(commentFields);
 
             // Setting Comments Labels for East Comment Panel
-            for(int i = 0; i < comments.length; i ++){
-                JLabel commentLabel = new JLabel((String)comments[i][1]);
+            for (String[] strings : comments) {
+                JLabel commentLabel = new JLabel((String) strings[1]);
                 styleCommentLabel(commentLabel);
                 eastPanel.add(commentLabel);
             }
@@ -212,7 +206,7 @@ public class FeedPanel extends JPanel {
                         mainFrame.showLoadingPanel();
                         long userID = SessionManager.getInstance().getCurrentUserId();
                         long beRealId = SessionManager.getInstance().getCurrentBeRealId();
-                        System.out.println("text: " + commentText);
+                        //System.out.println("text: " + commentText);
                         String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
                         commentFields.setText("");
                         try {
@@ -309,13 +303,12 @@ public class FeedPanel extends JPanel {
                 stylePanel(commentPanel);
 
                 // Setting Array for comments
-                String sql = "SELECT `berealID` FROM `BeReal` WHERE userID = " + friendId;
-                long beRealId = (long)query.retrieve(sql)[0][0];
-                sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
-                Object[][] comments = query.retrieve(sql);
-                /*for(int i = 0; i < comments.length; i ++){
-                    for(int j = 0; j < 2; j ++){
-                        System.out.println(comments[i][j]);
+                long beRealId = query.fetchBeRealId(friendId);
+                String[][] comments = query.fetchUserComments(beRealId);
+                //System.out.println(friendId + " berealID: " + beRealId);
+                /*for (String[] value : comments) {
+                    for (int j = 0; j < 2; j++) {
+                        System.out.println(value[j]);
                     }
                 }*/
 
@@ -328,8 +321,8 @@ public class FeedPanel extends JPanel {
                 westPanel.add(comment);
 
                 // Setting UserName Labels for West Comment Panel
-                for (int i = 0; i < comments.length; i++) {
-                    JLabel userName = new JLabel((String) comments[i][0]);
+                for (String[] strings : comments) {
+                    JLabel userName = new JLabel(strings[0]);
                     styleCommentLabel(userName);
                     westPanel.add(userName);
                     //System.out.println(i);
@@ -346,8 +339,8 @@ public class FeedPanel extends JPanel {
                 eastPanel.add(commentFields);
 
                 // Setting Comments Labels for East Comment Panel
-                for (int i = 0; i < comments.length; i++) {
-                    JLabel commentLabel = new JLabel((String) comments[i][1]);
+                for (String[] strings : comments) {
+                    JLabel commentLabel = new JLabel(strings[1]);
                     styleCommentLabel(commentLabel);
                     eastPanel.add(commentLabel);
                 }
@@ -362,7 +355,7 @@ public class FeedPanel extends JPanel {
                         if (!commentText.isEmpty() && commentText.length() <= 32) {
                             mainFrame.showLoadingPanel();
                             long userID = SessionManager.getInstance().getCurrentUserId();
-                            System.out.println("text: " + commentText);
+                            //System.out.println("text: " + commentText);
                             String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
                             commentFields.setText("");
                             try {
