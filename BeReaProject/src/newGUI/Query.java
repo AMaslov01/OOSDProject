@@ -189,5 +189,26 @@ public class Query {
         }
     }
 
+    public boolean registerUser(String username, String password) throws SQLException {
+        String sql1 = "SELECT * FROM `User` WHERE `username` = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql1)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return false; // Username already exists
+            }
+        }
+
+        String sql2 = "INSERT INTO User(username, password) VALUES(?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql2)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
     public Query() {}
 }
