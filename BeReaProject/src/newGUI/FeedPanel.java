@@ -8,11 +8,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
     private JScrollPane scrollPane;
     private JButton logoutButton;
+    private JButton updateButton;
     private MainFrame mainFrame;
     private Query query = new Query();
     final float FRAME_WIDTH_WITH_GAP = 333;
@@ -29,6 +31,8 @@ public class FeedPanel extends JPanel {
         // Panel for the logout button in the top right corner
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.black);
+
+        // Setting Logout Button
         logoutButton = new JButton("Log Out");
         styleButtonLogOut(logoutButton);
         logoutButton.setFocusable(true);
@@ -40,6 +44,35 @@ public class FeedPanel extends JPanel {
         });
         topPanel.add(logoutButton, BorderLayout.EAST);
         topPanel.setOpaque(true);
+
+        //Setiing Update Button
+        updateButton = new JButton("Update");
+        styleButtonLogOut(updateButton);
+        updateButton.setFocusable(true);
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.showLoadingPanel();
+                // Create a SwingWorker to handle login asynchronously
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() {
+                        // Perform the authentication check asynchronously
+                        updateContent();
+                        return true;
+                    }
+
+                    @Override
+                    protected void done() {
+                        SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                    }
+                };
+                worker.execute(); // Start the worker thread
+
+            }
+        });
+        topPanel.add(updateButton, BorderLayout.CENTER);
+
         add(topPanel, BorderLayout.NORTH);
 
         imagePanel = new JPanel();
@@ -124,20 +157,50 @@ public class FeedPanel extends JPanel {
             JPanel commentPanel = new JPanel(new BorderLayout());
             stylePanel(commentPanel);
 
-            // Setting West Comment Panel
-            JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            stylePanel(westPanel);
+            // Setting Array for comments
+
+            long beRealId = SessionManager.getInstance().getCurrentBeRealId();
+            String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId ;
+            Object[][] comments = query.retrieve(sql);
+            /*for(int i = 0; i < comments.length; i ++){
+                for(int j = 0; j < 2; j ++){
+                    System.out.println(comments[i][j]);
+                }
+            }*/
+
+            // Setting Comment Button for West Comment Panel
+            JPanel westPanel = new JPanel();
+            westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
+            styleWestPanel(westPanel);
             JButton comment = new JButton("Comment");
             styleButton(comment);
             westPanel.add(comment);
+
+            // Setting UserName Labels for West Comment Panel
+            for(int i = 0; i < comments.length; i ++){
+                JLabel userName = new JLabel((String)comments[i][0]);
+                styleCommentLabel(userName);
+                westPanel.add(userName);
+                //System.out.println(i);
+            }
+
             commentPanel.add(westPanel, BorderLayout.WEST);
 
-            // Setting East Comment Panel
-            JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            stylePanel(eastPanel);
+            // Setting Input Field for East Comment Panel
+            JPanel eastPanel = new JPanel();
+            eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+            styleWestPanel(eastPanel);
             JTextField commentFields = new JTextField();
             styleTextField(commentFields);
             eastPanel.add(commentFields);
+
+            // Setting Comments Labels for East Comment Panel
+            for(int i = 0; i < comments.length; i ++){
+                JLabel commentLabel = new JLabel((String)comments[i][1]);
+                styleCommentLabel(commentLabel);
+                eastPanel.add(commentLabel);
+            }
+
             commentPanel.add(eastPanel, BorderLayout.CENTER);
 
             // Comment Button Action Listener
@@ -145,7 +208,8 @@ public class FeedPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String commentText = commentFields.getText();
-                    if(!commentText.isEmpty()) {
+                    if(!commentText.isEmpty() && commentText.length() <= 32) {
+                        mainFrame.showLoadingPanel();
                         long userID = SessionManager.getInstance().getCurrentUserId();
                         long beRealId = SessionManager.getInstance().getCurrentBeRealId();
                         System.out.println("text: " + commentText);
@@ -156,6 +220,24 @@ public class FeedPanel extends JPanel {
                         } catch (SQLException er) {
                             er.printStackTrace();
                         }
+                        // Create a SwingWorker to handle login asynchronously
+                        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                            @Override
+                            protected Boolean doInBackground() {
+                                // Perform the authentication check asynchronously
+                                updateContent();
+                                return true;
+                            }
+
+                            @Override
+                            protected void done() {
+                                SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                            }
+                        };
+                        worker.execute(); // Start the worker thread
+                    }
+                    else if(commentText.length() > 32){
+                        JOptionPane.showMessageDialog(mainFrame, "Your comment is too long! 32 characters max!", "Comment Error", JOptionPane.ERROR_MESSAGE);
                     }
                     else{
                         JOptionPane.showMessageDialog(mainFrame, "Empty comments not allowed!", "Comment Error", JOptionPane.ERROR_MESSAGE);
@@ -177,101 +259,147 @@ public class FeedPanel extends JPanel {
         System.out.println("Fetching friend image");
         Image image = query.fetchFriendImage(friendId);
         System.out.println("Fetched friend image");
-        if (image != null) {
-            // Setting panel for label
-            JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout());
+        try {
+            if (image != null) {
+                // Setting panel for label
+                JPanel panel = new JPanel();
+                panel.setLayout(new BorderLayout());
 
-            // Setting textlabel
-            JLabel textLabel = new JLabel();
-            System.out.println("Fetching friend name");
-            textLabel.setText(String.valueOf(query.fetchUserNameFromDatabase(friendId)));
-            System.out.println("Fetched friend name");
-            styleLabel(textLabel);
-            panel.add(textLabel, BorderLayout.NORTH);
+                // Setting textlabel
+                JLabel textLabel = new JLabel();
+                System.out.println("Fetching friend name");
+                textLabel.setText(String.valueOf(query.fetchUserNameFromDatabase(friendId)));
+                System.out.println("Fetched friend name");
+                styleLabel(textLabel);
+                panel.add(textLabel, BorderLayout.NORTH);
 
-            // Setting picLabel
-            JLabel picLabel = new JLabel();
+                // Setting picLabel
+                JLabel picLabel = new JLabel();
 
-            float width = image.getWidth(null);
-            float height = image.getHeight(null);
-            float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
-            float widthDivisor = (width/FRAME_WIDTH_WITH_GAP);
+                float width = image.getWidth(null);
+                float height = image.getHeight(null);
+                float heightDivisor = (height / FRAME_HEIGHT_WITH_GAP);
+                float widthDivisor = (width / FRAME_WIDTH_WITH_GAP);
 
-            if(width > FRAME_WIDTH_WITH_GAP){
-                height = height/widthDivisor;
-                width = width/widthDivisor;
-            }
+                if (width > FRAME_WIDTH_WITH_GAP) {
+                    height = height / widthDivisor;
+                    width = width / widthDivisor;
+                }
 
-            if(height > FRAME_HEIGHT_WITH_GAP){
-                width = width/heightDivisor;
-                height = height/heightDivisor;
-            }
+                if (height > FRAME_HEIGHT_WITH_GAP) {
+                    width = width / heightDivisor;
+                    height = height / heightDivisor;
+                }
 
-            int rdWidth =  Math.round(width);
-            int rdHeight = Math.round(height);
+                int rdWidth = Math.round(width);
+                int rdHeight = Math.round(height);
 
-            Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
-            picLabel.setHorizontalTextPosition(JLabel.CENTER);
-            picLabel.setVerticalTextPosition(JLabel.TOP);
-            styleLabel(picLabel);
-            picLabel.setIcon(new ImageIcon(scaledImage));
-            panel.add(picLabel, BorderLayout.CENTER);
+                Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
+                picLabel.setHorizontalTextPosition(JLabel.CENTER);
+                picLabel.setVerticalTextPosition(JLabel.TOP);
+                styleLabel(picLabel);
+                picLabel.setIcon(new ImageIcon(scaledImage));
+                panel.add(picLabel, BorderLayout.CENTER);
 
-            // Adding panel to imagePanel
-            //Border border = BorderFactory.createLineBorder(Color.WHITE, 0); // 2-pixel width white line border
-            //panel.setBorder(border);
-            stylePanel(panel);
+                // Adding panel to imagePanel
+                stylePanel(panel);
 
-            // Setting Comment Panel
-            JPanel commentPanel = new JPanel(new BorderLayout());
-            stylePanel(commentPanel);
+                // Setting Comment Panel
+                JPanel commentPanel = new JPanel(new BorderLayout());
+                stylePanel(commentPanel);
 
-            // Setting West Comment Panel
-            JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            stylePanel(westPanel);
-            JButton comment = new JButton("Comment");
-            styleButton(comment);
-            westPanel.add(comment);
-            commentPanel.add(westPanel, BorderLayout.WEST);
+                // Setting Array for comments
+                String sql = "SELECT `berealID` FROM `BeReal` WHERE userID = " + friendId;
+                long beRealId = (long)query.retrieve(sql)[0][0];
+                sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
+                Object[][] comments = query.retrieve(sql);
+                /*for(int i = 0; i < comments.length; i ++){
+                    for(int j = 0; j < 2; j ++){
+                        System.out.println(comments[i][j]);
+                    }
+                }*/
 
-            // Setting East Comment Panel
-            JPanel eastPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            stylePanel(eastPanel);
-            JTextField commentFields = new JTextField();
-            styleTextField(commentFields);
-            eastPanel.add(commentFields);
-            commentPanel.add(eastPanel, BorderLayout.CENTER);
+                // Setting Comment Button for West Comment Panel
+                JPanel westPanel = new JPanel();
+                westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
+                styleWestPanel(westPanel);
+                JButton comment = new JButton("Comment");
+                styleButton(comment);
+                westPanel.add(comment);
 
-            // Comment Button Action Listener
-            comment.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String commentText = commentFields.getText();
-                    if(!commentText.isEmpty()) {
-                        long userID = SessionManager.getInstance().getCurrentUserId();
-                        String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE `userID` = " + friendId;
-                        Object[][] beRealId = new Object[1][1];
-                        try {
-                            beRealId = query.retrieve(sql);
+                // Setting UserName Labels for West Comment Panel
+                for (int i = 0; i < comments.length; i++) {
+                    JLabel userName = new JLabel((String) comments[i][0]);
+                    styleCommentLabel(userName);
+                    westPanel.add(userName);
+                    //System.out.println(i);
+                }
+
+                commentPanel.add(westPanel, BorderLayout.WEST);
+
+                // Setting Input Field for East Comment Panel
+                JPanel eastPanel = new JPanel();
+                eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+                styleWestPanel(eastPanel);
+                JTextField commentFields = new JTextField();
+                styleTextField(commentFields);
+                eastPanel.add(commentFields);
+
+                // Setting Comments Labels for East Comment Panel
+                for (int i = 0; i < comments.length; i++) {
+                    JLabel commentLabel = new JLabel((String) comments[i][1]);
+                    styleCommentLabel(commentLabel);
+                    eastPanel.add(commentLabel);
+                }
+
+                commentPanel.add(eastPanel, BorderLayout.CENTER);
+
+                // Comment Button Action Listener
+                comment.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String commentText = commentFields.getText();
+                        if (!commentText.isEmpty() && commentText.length() <= 32) {
+                            mainFrame.showLoadingPanel();
+                            long userID = SessionManager.getInstance().getCurrentUserId();
                             System.out.println("text: " + commentText);
-                            sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId[0][0] + "')";
+                            String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
                             commentFields.setText("");
-                            query.execute(sql);
-                        } catch (SQLException er) {
-                            er.printStackTrace();
+                            try {
+                                query.execute(sql);
+                            } catch (SQLException er) {
+                                er.printStackTrace();
+                            }
+                            // Create a SwingWorker to handle login asynchronously
+                            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                                @Override
+                                protected Boolean doInBackground() {
+                                    // Perform the authentication check asynchronously
+                                    updateContent();
+                                    return true;
+                                }
+
+                                @Override
+                                protected void done() {
+                                    SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                                }
+                            };
+                            worker.execute(); // Start the worker thread
+                        } else if (commentText.length() > 32) {
+                            JOptionPane.showMessageDialog(mainFrame, "Your comment is too long! 32 characters max!", "Comment Error", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(mainFrame, "Empty comments not allowed!", "Comment Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    else{
-                        JOptionPane.showMessageDialog(mainFrame, "Empty comments not allowed!", "Comment Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-            panel.add(commentPanel, BorderLayout.SOUTH);
+                });
+                panel.add(commentPanel, BorderLayout.SOUTH);
 
-            imagePanel.add(panel);
-        } else {
-            System.out.println("No image found for friend ID: " + friendId);
+                imagePanel.add(panel);
+            } else {
+                System.out.println("No image found for friend ID: " + friendId);
+            }
+        } catch (Exception e){
+            JOptionPane.showMessageDialog(this, "Error displaying image for friend: " + friendId, "Image Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -290,6 +418,13 @@ public class FeedPanel extends JPanel {
         panel.setBackground(Color.black);
     }
 
+    private void styleWestPanel(JPanel panel) {
+        panel.setBackground(Color.black);
+        Border border = BorderFactory.createLineBorder(Color.BLACK, 5); // 2-pixel width white line border
+        panel.setBorder(border);
+
+    }
+
     private void styleScroll(JScrollPane scroll) {
         scroll.setBackground(Color.black);
     }
@@ -301,13 +436,18 @@ public class FeedPanel extends JPanel {
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
 
+    private void styleCommentLabel(JLabel label) {
+        label.setForeground(Color.white);
+        label.setFont(new Font("JetBrains Mono", Font.BOLD, 15));
+    }
+
     private void styleButton(JButton button){
-        button.setSize(new Dimension(100, 55));
+        button.setBounds(10, 10, 100, 55);
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
     private void styleTextField(JTextField text){
-        text.setPreferredSize(new Dimension(320, 32));
+        text.setSize(new Dimension(320, 32));
         text.setBackground(Color.BLACK);
         text.setForeground(Color.WHITE);
         Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
