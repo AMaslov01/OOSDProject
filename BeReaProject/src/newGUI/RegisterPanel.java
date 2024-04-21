@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 public class RegisterPanel extends JPanel {
     private JTextField userNameField;
     private JPasswordField passWordField;
     private JPasswordField confirmField;
     private JButton registerButton;
+    private JButton backButton;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
     public RegisterPanel(MainFrame mainFrame) {
@@ -19,67 +21,84 @@ public class RegisterPanel extends JPanel {
     }
 
     private void initializeUI() {
-        setPreferredSize(new Dimension(500,888));
-        setLayout(new GridBagLayout());
+        //setPreferredSize(new Dimension(500, 888));
+        setLayout(new BorderLayout());
+
+        // Panel for the logout button in the top left corner
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.black);
+        backButton = new JButton("Back");
+        backButton.setFocusable(false);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.showLoginPanel(); // Navigate back to the login panel
+            }
+        });
+        styleButtonBack(backButton);
+        topPanel.add(backButton, BorderLayout.WEST);
+        topPanel.setOpaque(true);
+        add(topPanel, BorderLayout.NORTH);
+
+        // Panel for other UI components using GridBagLayout
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        stylePanel(this);
-        gbc.insets = new Insets(10, 5, 10, 5);
         gbc.anchor = GridBagConstraints.WEST;
+        stylePanel(centerPanel);
+        gbc.insets = new Insets(10, 5, 10, 5);
+
+        // Username label and field
+        JLabel label1 = new JLabel("Username:");
         gbc.gridx = 0;
         gbc.gridy = 0;
-
-        // Username
-        JLabel label1 = new JLabel("Username:");
-        add(label1, gbc);
+        centerPanel.add(label1, gbc);
         styleLabel(label1);
         gbc.gridx = 1;
         userNameField = new JTextField(20);
-        add(userNameField, gbc);
+        centerPanel.add(userNameField, gbc);
         styleText(userNameField);
 
-        // Password
-        gbc.gridy = 1;
-        gbc.gridx = 0;
+        // Password label and field
         JLabel label2 = new JLabel("Password:");
-        add(label2, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        centerPanel.add(label2, gbc);
         styleLabel(label2);
         gbc.gridx = 1;
         passWordField = new JPasswordField(20);
-        add(passWordField, gbc);
+        centerPanel.add(passWordField, gbc);
         styleText(passWordField);
 
-        // Confirm Password
-        gbc.gridy = 2;
-        gbc.gridx = 0;
+        // Confirm Password label and field
         JLabel label3 = new JLabel("Confirm:");
-        add(label3, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        centerPanel.add(label3, gbc);
         styleLabel(label3);
         gbc.gridx = 1;
         confirmField = new JPasswordField(20);
-        add(confirmField, gbc);
+        centerPanel.add(confirmField, gbc);
         styleText(confirmField);
 
         // Register Button
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.gridwidth = 2;
         registerButton = new JButton("Register");
         styleButton(registerButton);
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    performRegistration();
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                performRegistration();
             }
         });
-        add(registerButton, gbc);
+        centerPanel.add(registerButton, gbc);
+
+        add(centerPanel, BorderLayout.CENTER);
     }
 
-    private void performRegistration() throws SQLException {
+    private void performRegistration() {
         String userName = userNameField.getText();
         String password = new String(passWordField.getPassword());
         String confirm = new String(confirmField.getPassword());
@@ -89,32 +108,61 @@ public class RegisterPanel extends JPanel {
         } else if (!confirm.equals(password)) {
             JOptionPane.showMessageDialog(this, "Passwords Do Not Match!", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            Query query = new Query();
-            String sql1 = "SELECT * FROM `User` WHERE `username` = '" + userName + "';";
-            Object[][] array = query.retrieve(sql1);
-            if (array.length == 0) {
-                String sql2 = "INSERT INTO User(username, password) VALUES('" + userName + "','" + password + "')";
-                query.execute(sql2);
-                //JOptionPane.showMessageDialog(this, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
-                mainFrame.showLoginPanel(); // Navigate back to the login panel after successful registration
-            } else {
-                JOptionPane.showMessageDialog(this, "This Username Is Taken!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            mainFrame.showLoadingPanel();
+
+            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    Query query = new Query();
+                    return query.registerUser(userName, password);
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        boolean success = get();
+                        if (success) {
+                            // JOptionPane.showMessageDialog(RegisterPanel.this, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                            mainFrame.showLoginPanel(); // Navigate back to the login panel after successful registration
+                        } else {
+                            JOptionPane.showMessageDialog(RegisterPanel.this, "This Username Is Taken!", "Error", JOptionPane.ERROR_MESSAGE);
+                            mainFrame.showRegisterPanel();
+                        }
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(RegisterPanel.this, "Registration Failed!", "Error", JOptionPane.ERROR_MESSAGE);
+                        mainFrame.showRegisterPanel();
+                    }
+                }
+            };
+            worker.execute();
         }
     }
+
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
     }
+
     private void styleText(JTextField text){
         text.setPreferredSize(new Dimension(100, 35));
         text.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));
     }
+
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(160, 50));
-        button.setFont(new Font("JetBrains Mono", Font.PLAIN, 30));
+        button.setFont(new Font("JetBrains Mono", Font.PLAIN, 25));
     }
+
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
+    }
+
+    private void styleButtonBack(JButton button){
+        button.setOpaque(true);
+        button.setPreferredSize(new Dimension(120, 45));
+        button.setForeground(Color.WHITE);
+        button.setBackground(Color.BLACK);
+        button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 }
