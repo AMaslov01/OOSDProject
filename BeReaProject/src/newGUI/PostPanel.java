@@ -136,8 +136,11 @@ public class PostPanel extends JPanel {
 
                         SessionManager.getInstance().setCurrentFile(selectedFile);
                         System.out.println("Successful upload");
-                        mainFrame.getFeedPanel().updateContent(); // Direct call to update content
+                        //mainFrame.getFeedPanel().updateContent(); // Direct call to update content
                         System.out.println("Updated feed panel");
+
+                        mainFrame.updateUserSession(SessionManager.getInstance().getCurrentUserName());
+                        System.out.println("Updated user session");
                         return true; // Successful upload
                     } catch (IOException error) {
                         JOptionPane.showMessageDialog(null, "Failed to upload image.", "Error", JOptionPane.ERROR_MESSAGE);

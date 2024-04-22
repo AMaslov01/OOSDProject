@@ -7,14 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
     private JScrollPane scrollPane;
     private JButton logoutButton;
     private JButton updateButton;
+    private JButton friendsButton;
     private MainFrame mainFrame;
     private Query query = new Query();
     final float FRAME_WIDTH_WITH_GAP = 333;
@@ -73,6 +72,33 @@ public class FeedPanel extends JPanel {
         });
         topPanel.add(updateButton, BorderLayout.CENTER);
 
+        friendsButton = new JButton("Friends");
+        friendsButton.setFocusable(false);
+        friendsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.showLoadingPanel(); // Show loading panel while processing
+
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        mainFrame.getFriendsPanel().updateFriendsList(); // Update the friends list in the background
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        // Once updating is complete, switch back to the friends panel
+                        SwingUtilities.invokeLater(() -> {
+                            mainFrame.showFriendsPanel(); // Show the friends panel
+                        });
+                    }
+                };
+                worker.execute(); // Start the worker thread
+            }
+        });
+        styleButtonLogOut(friendsButton);
+        topPanel.add(friendsButton, BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
 
         imagePanel = new JPanel();
@@ -207,6 +233,7 @@ public class FeedPanel extends JPanel {
                         long userID = SessionManager.getInstance().getCurrentUserId();
                         long beRealId = SessionManager.getInstance().getCurrentBeRealId();
                         //System.out.println("text: " + commentText);
+                        // TODO: goes to Query
                         String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
                         commentFields.setText("");
                         try {
@@ -226,6 +253,7 @@ public class FeedPanel extends JPanel {
                             @Override
                             protected void done() {
                                 SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                                System.out.println("Comment added");
                             }
                         };
                         worker.execute(); // Start the worker thread
@@ -356,6 +384,7 @@ public class FeedPanel extends JPanel {
                             mainFrame.showLoadingPanel();
                             long userID = SessionManager.getInstance().getCurrentUserId();
                             //System.out.println("text: " + commentText);
+                            // TODO: goes to Query
                             String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
                             commentFields.setText("");
                             try {

@@ -255,5 +255,61 @@ public class Query {
         }
     }
 
+    public boolean addFriend(long userId, String friendUsername) throws SQLException {
+        long friendId = fetchUserIdFromDatabase(friendUsername);
+        if (friendId == -1) {
+            return false; // Friend username does not exist
+        }
+
+        if (alreadyFriends(userId, friendId)) {
+            return false; // They are already friends
+        }
+
+        String sql = "INSERT INTO User_to_User (UserID1, UserID2) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            int rowsAffected = pstmt.executeUpdate();
+            pstmt.setLong(2, userId);
+            pstmt.setLong(1, friendId);
+            rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    // Helper method to check if two users are already friends
+    private boolean alreadyFriends(long userId, long friendId) throws SQLException {
+        String sql = "SELECT * FROM User_to_User WHERE (UserID1 = ? AND UserID2 = ?) OR (UserID1 = ? AND UserID2 = ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            pstmt.setLong(3, friendId);
+            pstmt.setLong(4, userId);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        }
+    }
+
+    // Method to delete a friend
+    public boolean deleteFriend(long userId, String friendUsername) throws SQLException {
+        long friendId = fetchUserIdFromDatabase(friendUsername);
+        if (friendId == -1 || !alreadyFriends(userId, friendId)) {
+            return false; // Friend username does not exist or they are not friends
+        }
+
+        String sql = "DELETE FROM User_to_User WHERE (UserID1 = ? AND UserID2 = ?) OR (UserID1 = ? AND UserID2 = ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            pstmt.setLong(3, friendId);
+            pstmt.setLong(4, userId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
     public Query() {}
 }

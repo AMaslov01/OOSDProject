@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class RegisterPanel extends JPanel {
@@ -36,6 +35,7 @@ public class RegisterPanel extends JPanel {
             }
         });
         styleButtonBack(backButton);
+        topPanel.add(backButton, BorderLayout.EAST);
         topPanel.add(backButton, BorderLayout.WEST);
         topPanel.setOpaque(true);
         add(topPanel, BorderLayout.NORTH);

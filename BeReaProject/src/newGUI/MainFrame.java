@@ -13,6 +13,7 @@ public class MainFrame extends JFrame {
     private PostPanel postPanel;
     private FeedPanel feedPanel;
     private LoadingPanel loadingPanel;
+    private FriendsPanel friendsPanel;
     private Query query = new Query();
 
     public MainFrame() {
@@ -30,12 +31,14 @@ public class MainFrame extends JFrame {
         postPanel = new PostPanel(this);
         feedPanel = new FeedPanel(this);  // Initialize without user data
         loadingPanel = new LoadingPanel(this);
+        friendsPanel = new FriendsPanel(this);
 
         cardPanel.add(loginPanel, "Login");
         cardPanel.add(registerPanel, "Register");
         cardPanel.add(postPanel, "Post");
         cardPanel.add(feedPanel, "Feed");
         cardPanel.add(loadingPanel, "Loading");
+        cardPanel.add(friendsPanel, "Friends");
 
         setResizable(false);
         setLocationRelativeTo(null);
@@ -63,6 +66,10 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, "Loading");
     }
 
+    public void showFriendsPanel() {
+        cardLayout.show(cardPanel, "Friends");
+    }
+
     // Update session when user logs in
     public void updateUserSession(String userName) {
         long userId = query.fetchUserIdFromDatabase(userName);
@@ -80,5 +87,9 @@ public class MainFrame extends JFrame {
 
     public FeedPanel getFeedPanel() {
         return feedPanel;
+    }
+
+    public FriendsPanel getFriendsPanel() {
+        return friendsPanel;
     }
 }
