@@ -14,14 +14,20 @@ public class LoadingPanel extends JPanel {
     }
 
     private void initializeUI() {
-        setLayout(null);
+        setLayout(new BorderLayout());
         //Image loadingIcon = new ImageIcon(getClass().getResource("/loading.gif")).getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        ImageIcon loadingIcon = new ImageIcon(getClass().getResource("/loading.gif"));
+        ImageIcon loadingIcon = new ImageIcon(getClass().getResource("/loading3.gif"));
 
         //loadingLabel = new JLabel("Loading...", loadingIcon, JLabel.CENTER);
         loadingLabel = new JLabel(loadingIcon);
-        loadingLabel.setBounds(110, 260, 300, 300);
-        add(loadingLabel);
-        setBackground(Color.BLACK);
+        //loadingLabel.setBounds(200, 460, 100, 100);
+        setBackground(new Color(0, 0, 0, 255));
+        add(loadingLabel, BorderLayout.CENTER);
+
+        loadingLabel = new JLabel("Loading");
+        loadingLabel.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
+        loadingLabel.setForeground(Color.white);
+        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(loadingLabel, BorderLayout.NORTH);
     }
 }
