@@ -103,6 +103,9 @@ public class FriendsPanel extends JPanel {
                     SessionManager.getInstance().setCurrentUserName(currentUserName);
                     SessionManager.getInstance().setCurrentUserId(userId);
                     mainFrame.getFeedPanel().updateContent();
+
+                    updateFriendsList();  // Update the friend list display
+
                     return true;
                 }
                 return false;
@@ -114,7 +117,6 @@ public class FriendsPanel extends JPanel {
                     boolean success = get();
                     if (success) {
                         //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        updateFriendsList();  // Update the friend list display
                         mainFrame.showFriendsPanel(); // Refresh friends panel
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not add user as friend. They may already be your friend or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -151,6 +153,9 @@ public class FriendsPanel extends JPanel {
                     SessionManager.getInstance().setCurrentUserName(currentUserName);
                     SessionManager.getInstance().setCurrentUserId(userId);
                     mainFrame.getFeedPanel().updateContent();
+
+                    updateFriendsList();  // Update the friend list display
+
                     return true;
                 }
                 return false;
@@ -162,7 +167,6 @@ public class FriendsPanel extends JPanel {
                     boolean success = get();
                     if (success) {
                         //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        updateFriendsList();  // Update the friend list display
                         mainFrame.showFriendsPanel(); // Refresh friends panel
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not delete friend. They may not be your friend, or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
