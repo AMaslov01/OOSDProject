@@ -1,6 +1,8 @@
 package newGUI;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.ExecutionException;
@@ -54,24 +56,39 @@ public class FriendsPanel extends JPanel {
         gbc.gridy = 1;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
         centerPanel.add(addButton, gbc);
 
         deleteButton = new JButton("Delete Friend");
         styleButton(deleteButton);
         deleteButton.addActionListener(this::deleteFriend);
-        gbc.gridy = 2;
+        gbc.gridy = 1;
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
         centerPanel.add(deleteButton, gbc);
+        add(centerPanel, BorderLayout.CENTER);
 
         // Friends list panel
         friendsListPanel = new JPanel();
-        friendsListPanel.setBackground(Color.black);
-        friendsListPanel.setLayout(new BoxLayout(friendsListPanel, BoxLayout.Y_AXIS));
-        scrollPane = new JScrollPane(friendsListPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        stylePanel(friendsListPanel);
+        friendsListPanel.setLayout(new GridBagLayout());
 
-        add(scrollPane, BorderLayout.SOUTH);
-        add(centerPanel, BorderLayout.CENTER);
+        /*// Setting Panel for Scroll Panel
+        JPanel panelForScrollPanel = new JPanel();
+        panelForScrollPanel.setLayout(new BoxLayout(panelForScrollPanel, BoxLayout.Y_AXIS));
+        Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
+        panelForScrollPanel.setBorder(border);
+        System.out.println("Panel fro scroll: " + panelForScrollPanel.getHeight());
+        stylePanel(panelForScrollPanel);
+
+        // Scroll panel
+        scrollPane = new JScrollPane(friendsListPanel);
+        styleScrollPanel(scrollPane);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        panelForScrollPanel.add(scrollPane);*/
+
+        add(friendsListPanel, BorderLayout.SOUTH);
     }
 
     private void addFriend(ActionEvent e) {
@@ -97,11 +114,8 @@ public class FriendsPanel extends JPanel {
                 if (success) {
                     // Fetch the updated data and set it in the session manager
                     long userId = SessionManager.getInstance().getCurrentUserId();
-                    String currentUserName = SessionManager.getInstance().getCurrentUserName();
                     long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
                     SessionManager.getInstance().setFriends(friendsIds);
-                    SessionManager.getInstance().setCurrentUserName(currentUserName);
-                    SessionManager.getInstance().setCurrentUserId(userId);
                     mainFrame.getFeedPanel().updateContent();
                     return true;
                 }
@@ -115,10 +129,10 @@ public class FriendsPanel extends JPanel {
                     if (success) {
                         //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         updateFriendsList();  // Update the friend list display
-                        mainFrame.showFriendsPanel(); // Refresh friends panel
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not add user as friend. They may already be your friend or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
+                    mainFrame.showFriendsPanel(); // Refresh friends panel
                 } catch (InterruptedException | ExecutionException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(FriendsPanel.this, "Failed to add friend.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -145,11 +159,8 @@ public class FriendsPanel extends JPanel {
                 if (success) {
                     // Fetch the updated data and set it in the session manager
                     long userId = SessionManager.getInstance().getCurrentUserId();
-                    String currentUserName = SessionManager.getInstance().getCurrentUserName();
                     long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
                     SessionManager.getInstance().setFriends(friendsIds);
-                    SessionManager.getInstance().setCurrentUserName(currentUserName);
-                    SessionManager.getInstance().setCurrentUserId(userId);
                     mainFrame.getFeedPanel().updateContent();
                     return true;
                 }
@@ -163,10 +174,10 @@ public class FriendsPanel extends JPanel {
                     if (success) {
                         //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         updateFriendsList();  // Update the friend list display
-                        mainFrame.showFriendsPanel(); // Refresh friends panel
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not delete friend. They may not be your friend, or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
+                    mainFrame.showFriendsPanel(); // Refresh friends panel
                 } catch (InterruptedException | ExecutionException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(FriendsPanel.this, "Failed to delete friend.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -183,17 +194,26 @@ public class FriendsPanel extends JPanel {
         if (friendIds != null && friendIds.length > 0) {
             Query query = new Query();
 
+            // Create Layout Manager for Friend List Panel
+            GridBagConstraints gbc2 = new GridBagConstraints();
+            gbc2.insets = new Insets(5, 10, 5, 10);
+            gbc2.anchor = GridBagConstraints.CENTER;
+            gbc2.gridx = 0;
+            gbc2.gridy = 0;
+
             JLabel titleLabel = new JLabel("Current Friends:");
             styleLabel(titleLabel);
-            friendsListPanel.add(titleLabel);
-
+            friendsListPanel.add(titleLabel, gbc2);
+            int i = 0;
             for (long friendId : friendIds) {
                 String friendName = query.fetchUserNameFromDatabase(friendId);  // Fetch each friend's name using their ID
                 if (friendName != null && !friendName.isEmpty()) {
+                    i ++;
+                    gbc2.gridy = i;
                     System.out.println(friendName);
                     JLabel friendLabel = new JLabel(friendName);  // Create a label for each friend's name
                     styleFriendNameLabel(friendLabel);  // Apply styling
-                    friendsListPanel.add(friendLabel);  // Add the label to the panel
+                    friendsListPanel.add(friendLabel, gbc2);  // Add the label to the panel
                 } else {
                     System.out.println("No name found for friend ID: " + friendId);
                 }
@@ -201,7 +221,6 @@ public class FriendsPanel extends JPanel {
         } else {
             System.out.println("Friend list is empty or not found");
         }
-
         friendsListPanel.revalidate();  // Refresh panel to display updated list
         friendsListPanel.repaint();
     }
@@ -216,6 +235,13 @@ public class FriendsPanel extends JPanel {
 
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
+    }
+
+    private void styleScrollPanel(JScrollPane panel){
+        panel.setBackground(Color.black);
+        panel.setViewportBorder(null);
+        panel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        panel.setMaximumSize(new Dimension(mainFrame.getWidth(), 200));
     }
 
     private void styleLabel(JLabel label){

@@ -2,6 +2,7 @@ package newGUI;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -449,6 +450,8 @@ public class FeedPanel extends JPanel {
 
     private void styleScroll(JScrollPane scroll) {
         scroll.setBackground(Color.black);
+        scroll.setViewportBorder(null);
+        scroll.setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
     private void styleLabel(JLabel label) {
