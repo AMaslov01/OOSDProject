@@ -1,10 +1,12 @@
 package newGUI;
 
+import java.awt.*;
 import java.io.File;
+import java.sql.Blob;
 
 public class SessionManager {
     private String currentUserName;
-    private File currentFile;
+    private Image currentImage;
     private long beRealId;
     private long currentUserId;
     private long[] friends;
@@ -18,12 +20,12 @@ public class SessionManager {
         currentUserName = userName;
     }
 
-    public File getCurrentFile() {
-        return currentFile;
+    public Image getCurrentImage() {
+        return currentImage;
     }
 
-    public void setCurrentFile(File file) {
-        currentFile = file;
+    public void setCurrentImage(Image currentImage) {
+        this.currentImage = currentImage;
     }
 
     public long getCurrentUserId() {

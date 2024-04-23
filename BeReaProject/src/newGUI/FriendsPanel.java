@@ -27,7 +27,7 @@ public class FriendsPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.black);
         backButton = new JButton("Back");
-        backButton.addActionListener(e -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+        backButton.addActionListener(e -> mainFrame.showFeedPanel());
         styleButtonBack(backButton);
         topPanel.add(backButton, BorderLayout.WEST);
         topPanel.setOpaque(true);

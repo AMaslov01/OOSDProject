@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException;
 public class PostPanel extends JPanel {
 
     private String userName;
-    private JButton postButton, logoutButton;
     private JLabel postLabel;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
@@ -26,10 +25,12 @@ public class PostPanel extends JPanel {
         // Set the overall panel layout
         setLayout(new BorderLayout());
 
-        // Panel for the logout button in the top right corner
+        // Panel for the buttons
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.black);
-        logoutButton = new JButton("Log Out");
+
+        // Logout Button
+        JButton logoutButton = new JButton("Log Out");
         logoutButton.setFocusable(false);
         logoutButton.addActionListener(new ActionListener() {
             @Override
@@ -39,6 +40,20 @@ public class PostPanel extends JPanel {
         });
         styleButtonLogOut(logoutButton);
         topPanel.add(logoutButton, BorderLayout.EAST);
+
+        // Back Button
+        JButton backButton = new JButton("Back");
+        backButton.setFocusable(false);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                back();
+            }
+        });
+        styleButtonLogOut(backButton);
+        topPanel.add(backButton, BorderLayout.WEST);
+
+
         topPanel.setOpaque(true);
         add(topPanel, BorderLayout.NORTH);
 
@@ -58,7 +73,7 @@ public class PostPanel extends JPanel {
         centerPanel.add(postLabel, gbc);
 
         // Post Button
-        postButton = new JButton("Post");
+        JButton postButton = new JButton("Post");
         styleButton(postButton);
         gbc.gridy = 1;
         postButton.setFocusable(false);
@@ -100,73 +115,76 @@ public class PostPanel extends JPanel {
         panel.setBackground(Color.black);
     }
 
-    private void postImage() {
+    private void postImage(){
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", "webp");
         fileChooser.setFileFilter(filter);
         int returnValue = fileChooser.showOpenDialog(this);
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                File selectedFile = fileChooser.getSelectedFile();
+                byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
 
-            // Show loading panel
-            mainFrame.showLoadingPanel();
+                // Show loading panel
+                mainFrame.showLoadingPanel();
 
-            // Create a SwingWorker to handle the iage upload asynchronously
-            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                @Override
-                protected Boolean doInBackground() throws Exception {
-                    try {
-                        byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
-                        Query query = new Query();
-                        String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
-                        query.blobExecute(sql, fileContent);
+                // Create a SwingWorker to handle the iage upload asynchronously
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        try {
+                            Query query = new Query();
+                            String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
+                            query.blobExecute(sql, fileContent);
 
-                        sql = "SELECT MAX(`imageID`) FROM `Image`";
-                        Object[][] imageID = new Object[1][1];
-                        imageID = query.retrieve(sql);
+                            sql = "SELECT MAX(`imageID`) FROM `Image`";
+                            Object[][] imageID = new Object[1][1];
+                            imageID = query.retrieve(sql);
 
-                        sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES ("+ imageID[0][0] +"," + SessionManager.getInstance().getCurrentUserId() + ")";
-                        query.execute(sql);
+                            sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES (" + imageID[0][0] + "," + SessionManager.getInstance().getCurrentUserId() + ")";
+                            query.execute(sql);
 
-                        sql = "SELECT MAX(`berealID`) FROM `BeReal`";
-                        Object[][] beRealId = new Object[1][1];
-                        beRealId = query.retrieve(sql);
-                        SessionManager.getInstance().setCurrentBeRealId((long) beRealId[0][0]);
+                            sql = "SELECT MAX(`berealID`) FROM `BeReal`";
+                            Object[][] beRealId = new Object[1][1];
+                            beRealId = query.retrieve(sql);
+                            SessionManager.getInstance().setCurrentBeRealId((long) beRealId[0][0]);
 
-                        SessionManager.getInstance().setCurrentFile(selectedFile);
-                        System.out.println("Successful upload");
-                        //mainFrame.getFeedPanel().updateContent(); // Direct call to update content
-                        System.out.println("Updated feed panel");
+                            Image image = query.retrieveUserImage(SessionManager.getInstance().getCurrentUserId());
 
-                        mainFrame.updateUserSession(SessionManager.getInstance().getCurrentUserName());
-                        System.out.println("Updated user session");
-                        return true; // Successful upload
-                    } catch (IOException error) {
-                        JOptionPane.showMessageDialog(null, "Failed to upload image.", "Error", JOptionPane.ERROR_MESSAGE);
-                        error.printStackTrace();
-                        return false; // Upload failed
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
+                            SessionManager.getInstance().setCurrentImage(image);
+                            System.out.println("Successful upload");
+                            //mainFrame.getFeedPanel().updateContent(); // Direct call to update content
+                            System.out.println("Updated feed panel");
 
-                @Override
-                protected void done() {
-                    try {
-                        if (get()) {
-                            mainFrame.showFeedPanel(selectedFile); // This displays the FeedPanel with the new file
-                        } else {
-                            mainFrame.showPostPanel(); // Return to the post panel on failure
+                            mainFrame.updateUserSession(SessionManager.getInstance().getCurrentUserName());
+                            System.out.println("Updated user session");
+                            return true; // Successful upload
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
                         }
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                        mainFrame.showPostPanel(); // Return to the post panel on error
                     }
-                }
-            };
-            worker.execute(); // Start the worker thread
+
+                    @Override
+                    protected void done() {
+                        try {
+                            if (get()) {
+                                mainFrame.showFeedPanel(); // This displays the FeedPanel with the new file
+                            } else {
+                                mainFrame.showPostPanel(); // Return to the post panel on failure
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                            mainFrame.showPostPanel(); // Return to the post panel on error
+                        }
+                    }
+                };
+                worker.execute(); // Start the worker thread
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -175,10 +193,15 @@ public class PostPanel extends JPanel {
         SessionManager.getInstance().setCurrentUserName(null);
         SessionManager.getInstance().setCurrentUserId(-1);
         SessionManager.getInstance().setFriends(null);
-        SessionManager.getInstance().setCurrentFile(null);
+        SessionManager.getInstance().setCurrentImage(null);
 
         // Navigate back to the Login panel
         mainFrame.showLoginPanel();
+    }
+
+    private void back() {
+        // Navigate back to the Feed panel
+        mainFrame.showFeedPanel();
     }
 
     public void setUserName(String userName) {

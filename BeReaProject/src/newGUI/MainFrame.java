@@ -3,6 +3,8 @@ package newGUI;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 
 public class MainFrame extends JFrame {
@@ -58,7 +60,7 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, "Post");
     }
 
-    public void showFeedPanel(File file) {
+    public void showFeedPanel() {
         cardLayout.show(cardPanel, "Feed");
     }
 
@@ -71,13 +73,19 @@ public class MainFrame extends JFrame {
     }
 
     // Update session when user logs in
-    public void updateUserSession(String userName) {
+    public void updateUserSession(String userName) throws SQLException {
         long userId = query.fetchUserIdFromDatabase(userName);
         SessionManager.getInstance().setCurrentUserName(userName);
 
         SessionManager.getInstance().setCurrentUserId(userId);
         long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
         SessionManager.getInstance().setFriends(friendsIds);
+
+        Image image = query.retrieveUserImage(userId);
+        SessionManager.getInstance().setCurrentImage(image);
+
+        long berealID = query.fetchBeRealId(userId);
+        SessionManager.getInstance().setCurrentBeRealId(berealID);
 
         // Now update UI components
         postPanel.updateUserName();

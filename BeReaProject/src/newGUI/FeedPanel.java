@@ -11,12 +11,8 @@ import java.sql.SQLException;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
-    private JScrollPane scrollPane;
-    private JButton logoutButton;
-    private JButton updateButton;
-    private JButton friendsButton;
-    private MainFrame mainFrame;
-    private Query query = new Query();
+    private final MainFrame mainFrame;
+    private final Query query = new Query();
     final float FRAME_WIDTH_WITH_GAP = 333;
     final float FRAME_HEIGHT_WITH_GAP = 592;
 
@@ -33,7 +29,7 @@ public class FeedPanel extends JPanel {
         topPanel.setBackground(Color.black);
 
         // Setting Logout Button
-        logoutButton = new JButton("Log Out");
+        JButton logoutButton = new JButton("Log Out");
         styleButtonLogOut(logoutButton);
         logoutButton.setFocusable(true);
         logoutButton.addActionListener(new ActionListener() {
@@ -45,8 +41,8 @@ public class FeedPanel extends JPanel {
         topPanel.add(logoutButton, BorderLayout.EAST);
         topPanel.setOpaque(true);
 
-        //Setiing Update Button
-        updateButton = new JButton("Update");
+        //Setting Update Button
+        JButton updateButton = new JButton("Update");
         styleButtonLogOut(updateButton);
         updateButton.setFocusable(true);
         updateButton.addActionListener(new ActionListener() {
@@ -64,7 +60,7 @@ public class FeedPanel extends JPanel {
 
                     @Override
                     protected void done() {
-                        SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                        SwingUtilities.invokeLater(mainFrame::showFeedPanel);
                     }
                 };
                 worker.execute(); // Start the worker thread
@@ -73,7 +69,7 @@ public class FeedPanel extends JPanel {
         });
         topPanel.add(updateButton, BorderLayout.CENTER);
 
-        friendsButton = new JButton("Friends");
+        JButton friendsButton = new JButton("Friends");
         friendsButton.setFocusable(false);
         friendsButton.addActionListener(new ActionListener() {
             @Override
@@ -102,10 +98,32 @@ public class FeedPanel extends JPanel {
         topPanel.add(friendsButton, BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
 
+        // Setting Post Button
+        JButton postButton = new JButton("Post");
+        postButton.setFocusable(false);
+        postButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.showLoadingPanel(); // Show loading panel while processing
+
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        mainFrame.showPostPanel(); // Update the friends list in the background
+                        return null;
+                    }
+                };
+                worker.execute(); // Start the worker thread
+            }
+        });
+        styleButtonLogOut(postButton);
+        add(topPanel, BorderLayout.NORTH);
+        add(postButton, BorderLayout.SOUTH);
+
         imagePanel = new JPanel();
         stylePanel(imagePanel);
         imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.Y_AXIS)); // Setting up BoxLayout for vertical stacking
-        scrollPane = new JScrollPane(imagePanel);
+        JScrollPane scrollPane = new JScrollPane(imagePanel);
         styleScroll(scrollPane);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -121,9 +139,9 @@ public class FeedPanel extends JPanel {
     public void updateContent() {
         System.out.println("Started updateContent");
         imagePanel.removeAll();
-        File file = SessionManager.getInstance().getCurrentFile();
-        if (file != null) {
-            displayImage(file, "My Picture");
+        Image image = SessionManager.getInstance().getCurrentImage();
+        if (image != null) {
+            displayImage("My Picture");
         }
 
         long[] friends = SessionManager.getInstance().getFriends();
@@ -139,7 +157,7 @@ public class FeedPanel extends JPanel {
         System.out.println("Finished updateContent");
     }
 
-    private void displayImage(File file, String label) {
+    private void displayImage(String label) {
         System.out.println("Started displayImage");
         try {
             // Setting panel for label
@@ -154,7 +172,7 @@ public class FeedPanel extends JPanel {
 
             // Setting picLabel
             JLabel picLabel = new JLabel();
-            Image image = new ImageIcon(file.getAbsolutePath()).getImage();
+            Image image = SessionManager.getInstance().getCurrentImage();
             float width = image.getWidth(null);
             float height = image.getHeight(null);
             float heightDivisor = (height/FRAME_HEIGHT_WITH_GAP);
@@ -236,6 +254,9 @@ public class FeedPanel extends JPanel {
                         //System.out.println("text: " + commentText);
                         // TODO: goes to Query
                         String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+                        System.out.println("Comment text: " + commentText);
+                        System.out.println("UserID: " + userID);
+                        System.out.println("BeRealID: " + beRealId);
                         commentFields.setText("");
                         try {
                             query.execute(sql);
@@ -253,7 +274,7 @@ public class FeedPanel extends JPanel {
 
                             @Override
                             protected void done() {
-                                SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                                SwingUtilities.invokeLater(mainFrame::showFeedPanel);
                                 System.out.println("Comment added");
                             }
                         };
@@ -404,7 +425,7 @@ public class FeedPanel extends JPanel {
 
                                 @Override
                                 protected void done() {
-                                    SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel(SessionManager.getInstance().getCurrentFile()));
+                                    SwingUtilities.invokeLater(mainFrame::showFeedPanel);
                                 }
                             };
                             worker.execute(); // Start the worker thread
@@ -431,7 +452,7 @@ public class FeedPanel extends JPanel {
         SessionManager.getInstance().setCurrentUserName(null);
         SessionManager.getInstance().setCurrentUserId(-1);
         SessionManager.getInstance().setFriends(null);
-        SessionManager.getInstance().setCurrentFile(null);
+        SessionManager.getInstance().setCurrentImage(null);
 
         // Navigate back to the Login panel
         mainFrame.showLoginPanel();

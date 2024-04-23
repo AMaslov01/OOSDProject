@@ -79,7 +79,7 @@ public class LogInPanel extends JPanel {
                         protected void done() {
                             try {
                                 if (get()) {
-                                    SwingUtilities.invokeLater(() -> mainFrame.showPostPanel());
+                                    SwingUtilities.invokeLater(() -> mainFrame.showFeedPanel());
                                 } else {
                                     SwingUtilities.invokeLater(() -> {
                                         mainFrame.showLoginPanel();

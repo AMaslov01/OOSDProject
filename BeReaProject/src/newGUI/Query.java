@@ -60,17 +60,30 @@ public class Query {
     }
 
     // Retrieve a blob from the database
-    public Blob blobRetrieve(String sql) throws SQLException {
-        try (Connection connection = getConnection();
+    public Image retrieveUserImage(long userID) throws SQLException {
+        try {
+            Connection connection = getConnection();
+             String sql = "SELECT i.image FROM Image i JOIN BeReal b ON i.imageID = b.imageID WHERE b.userID = " + userID
+                     + " AND b.berealID = (SELECT MAX(b.berealID) FROM BeReal b WHERE b.userID = " + userID + ")";
              PreparedStatement pstmt = connection.prepareStatement(sql);
-             ResultSet resultSet = pstmt.executeQuery()) {
+             ResultSet resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getBlob(1);
+                Blob blob = resultSet.getBlob(1);
+                if (blob != null) {
+                    try (InputStream inputStream = blob.getBinaryStream()) {
+                        return ImageIO.read(inputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             } else {
                 System.out.println("No data found.");
                 return null;
             }
+        } catch (SQLException e){
+            e.printStackTrace();
         }
+        return null;
     }
 
     // Fetching a userID from given username from the DB
@@ -162,7 +175,7 @@ public class Query {
     }
 
     public long fetchBeRealId(long userId) {
-        String sql = "SELECT `berealID` FROM `BeReal` WHERE userID = " + userId;
+        String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE userID = " + userId;
         long beRealId = 0;
         try {
             Connection connection = getConnection();
