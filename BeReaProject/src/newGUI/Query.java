@@ -50,7 +50,8 @@ public class Query {
     }
 
     // Executing non-return blob update
-    public void blobExecute(String sql, byte[] data) throws SQLException {
+    public void blobExecute(byte[] data) throws SQLException {
+        String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
         try (Connection connection = getConnection();
              PreparedStatement pstat = connection.prepareStatement(sql)) {
             pstat.setBytes(1, data);
@@ -59,8 +60,27 @@ public class Query {
         }
     }
 
+    // Method for fetching latest imageID
+    public long fetchUserImageId() {
+        String sql = "SELECT MAX(`imageID`) FROM `Image`";
+        long imageId = 0;
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            if(resultSet.next()){
+                imageId = resultSet.getLong(1);
+            }
+            return imageId;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving user's imageID: " + e.getMessage());
+        }
+        return imageId;
+    }
+
     // Retrieve a blob from the database
-    public Image retrieveUserImage(long userID) throws SQLException {
+    public Image fetchUserImage(long userID) throws SQLException {
         try {
             Connection connection = getConnection();
              String sql = "SELECT i.image FROM Image i JOIN BeReal b ON i.imageID = b.imageID WHERE b.userID = " + userID
@@ -147,6 +167,9 @@ public class Query {
         return null;
     }
 
+
+
+    // Method for fetching comments under specific BeReal
     public String[][] fetchUserComments(long beRealId) {
         String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
         try {
@@ -174,7 +197,31 @@ public class Query {
         return null;
     }
 
-    public long fetchBeRealId(long userId) {
+    public void executeComment(String commentText, long userID, long beRealId) {
+        String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            int result = pstat.executeUpdate();
+            System.out.println(result + " record(s) successfully added.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method for adding BeReal to DB
+    public void executeBeReal(long imageID, long userID) {
+        String sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES (" + imageID + "," + userID + ")";
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            int result = pstat.executeUpdate();
+            System.out.println(result + " record(s) successfully added.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method for fetching user's latest BeRealID
+    public long fetchUserBeRealId(long userId) {
         String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE userID = " + userId;
         long beRealId = 0;
         try {
@@ -191,6 +238,7 @@ public class Query {
         }
         return beRealId;
     }
+
 
     // Method for returning a name of a certain user/friend
     public String fetchUserNameFromDatabase(long userId) {

@@ -81,10 +81,10 @@ public class MainFrame extends JFrame {
         long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
         SessionManager.getInstance().setFriends(friendsIds);
 
-        Image image = query.retrieveUserImage(userId);
+        Image image = query.fetchUserImage(userId);
         SessionManager.getInstance().setCurrentImage(image);
 
-        long berealID = query.fetchBeRealId(userId);
+        long berealID = query.fetchUserBeRealId(userId);
         SessionManager.getInstance().setCurrentBeRealId(berealID);
 
         // Now update UI components

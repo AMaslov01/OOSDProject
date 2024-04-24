@@ -135,22 +135,16 @@ public class PostPanel extends JPanel {
                     protected Boolean doInBackground() throws Exception {
                         try {
                             Query query = new Query();
-                            String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
-                            query.blobExecute(sql, fileContent);
+                            query.blobExecute(fileContent);
 
-                            sql = "SELECT MAX(`imageID`) FROM `Image`";
-                            Object[][] imageID = new Object[1][1];
-                            imageID = query.retrieve(sql);
+                            long imageID = query.fetchUserImageId();
 
-                            sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES (" + imageID[0][0] + "," + SessionManager.getInstance().getCurrentUserId() + ")";
-                            query.execute(sql);
+                            query.executeBeReal(imageID, SessionManager.getInstance().getCurrentUserId());
 
-                            sql = "SELECT MAX(`berealID`) FROM `BeReal`";
-                            Object[][] beRealId = new Object[1][1];
-                            beRealId = query.retrieve(sql);
-                            SessionManager.getInstance().setCurrentBeRealId((long) beRealId[0][0]);
+                            long beRealId = query.fetchUserBeRealId(SessionManager.getInstance().getCurrentUserId());
+                            SessionManager.getInstance().setCurrentBeRealId(beRealId);
 
-                            Image image = query.retrieveUserImage(SessionManager.getInstance().getCurrentUserId());
+                            Image image = query.fetchUserImage(SessionManager.getInstance().getCurrentUserId());
 
                             SessionManager.getInstance().setCurrentImage(image);
                             System.out.println("Successful upload");

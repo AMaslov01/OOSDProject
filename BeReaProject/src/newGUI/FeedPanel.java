@@ -252,17 +252,12 @@ public class FeedPanel extends JPanel {
                         long userID = SessionManager.getInstance().getCurrentUserId();
                         long beRealId = SessionManager.getInstance().getCurrentBeRealId();
                         //System.out.println("text: " + commentText);
-                        // TODO: goes to Query
-                        String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+
+                        query.executeComment(commentText, userID, beRealId);
                         System.out.println("Comment text: " + commentText);
                         System.out.println("UserID: " + userID);
                         System.out.println("BeRealID: " + beRealId);
                         commentFields.setText("");
-                        try {
-                            query.execute(sql);
-                        } catch (SQLException er) {
-                            er.printStackTrace();
-                        }
                         // Create a SwingWorker to handle login asynchronously
                         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                             @Override
@@ -353,7 +348,7 @@ public class FeedPanel extends JPanel {
                 stylePanel(commentPanel);
 
                 // Setting Array for comments
-                long beRealId = query.fetchBeRealId(friendId);
+                long beRealId = query.fetchUserBeRealId(friendId);
                 String[][] comments = query.fetchUserComments(beRealId);
                 //System.out.println(friendId + " berealID: " + beRealId);
                 /*for (String[] value : comments) {
@@ -406,14 +401,10 @@ public class FeedPanel extends JPanel {
                             mainFrame.showLoadingPanel();
                             long userID = SessionManager.getInstance().getCurrentUserId();
                             //System.out.println("text: " + commentText);
-                            // TODO: goes to Query
-                            String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+
+                            query.executeComment(commentText, userID, beRealId);
                             commentFields.setText("");
-                            try {
-                                query.execute(sql);
-                            } catch (SQLException er) {
-                                er.printStackTrace();
-                            }
+
                             // Create a SwingWorker to handle login asynchronously
                             SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                                 @Override
