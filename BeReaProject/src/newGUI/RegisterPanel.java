@@ -8,6 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Class representing the panel where users can register a new account.
+ * Provides text fields for entering username, password, and password confirmation, along with a registration button to submit the information.
+ */
 public class RegisterPanel extends JPanel {
     private JTextField userNameField;
     private JPasswordField passWordField;
@@ -16,11 +20,21 @@ public class RegisterPanel extends JPanel {
     private JButton backButton;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
+    /**
+     * Constructor for RegisterPanel.
+     * Initializes the user interface components to facilitate user registration.
+     * @param mainFrame The main application window that holds this panel.
+     */
     public RegisterPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initializeUI();
     }
 
+    /**
+     * Initializes the user interface components of the register panel.
+     * Configures layout, adds text fields for username and passwords, and a button for registration.
+     * Sets action listeners for the buttons to handle user interaction.
+     */
     private void initializeUI() {
         //setPreferredSize(new Dimension(500, 888));
         setLayout(new BorderLayout());
@@ -100,6 +114,10 @@ public class RegisterPanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Handles the user registration process.
+     * Verifies the entered information and communicates with the server to attempt user registration.
+     */
     private void performRegistration() {
         String userName = userNameField.getText();
         String password = new String(passWordField.getPassword());
@@ -140,25 +158,50 @@ public class RegisterPanel extends JPanel {
         }
     }
 
+    /**
+     * Styles JLabels used in this panel.
+     * Configures text color and font to match the application's design.
+     * @param label The JLabel to style.
+     */
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
     }
 
+    /**
+     * Styles JTextFields used in this panel for entering username and password.
+     * Sets preferred size and font.
+     * @param text The JTextField to style.
+     */
     private void styleText(JTextField text){
         text.setPreferredSize(new Dimension(100, 35));
         text.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));
     }
 
+    /**
+     * Styles JButtons used in this panel for registration actions.
+     * Configures size and font to enhance user interaction.
+     * @param button The JButton to style.
+     */
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(160, 50));
         button.setFont(new Font("JetBrains Mono", Font.PLAIN, 25));
     }
 
+    /**
+     * Sets the style for panels used in this class.
+     * Configures the background color.
+     * @param panel The JPanel to style.
+     */
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
     }
 
+    /**
+     * Styles the back button.
+     * Sets opacity, size, font, and color properties to match the application's theme.
+     * @param button The JButton to style.
+     */
     private void styleButtonBack(JButton button){
         button.setOpaque(true);
         button.setPreferredSize(new Dimension(120, 45));

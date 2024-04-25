@@ -12,17 +12,30 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Class representing the panel where users can post images.
+ * Provides a user interface for uploading images and integrates functionalities for posting them.
+ */
 public class PostPanel extends JPanel {
 
     private String userName;
     private JLabel postLabel;
     private MainFrame mainFrame; // Reference to the main application window for navigation
 
+    /**
+     * Constructor for PostPanel.
+     * Initializes the user interface components to facilitate image posting.
+     * @param mainFrame The main application window that holds this panel.
+     */
     public PostPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initializeUI();
     }
 
+    /**
+     * Initializes the user interface components of the post panel.
+     * Configures layout, styles, and sets up buttons for logging out, going back, and posting images.
+     */
     private void initializeUI() {
         // Set the overall panel layout
         setLayout(new BorderLayout());
@@ -90,21 +103,40 @@ public class PostPanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Updates the welcome message with the user's name.
+     * Displays a greeting that includes the current username, or 'User' if no username is present.
+     */
     public void updateUserName(){
         String userName = SessionManager.getInstance().getCurrentUserName();
         postLabel.setText("Welcome, " + (userName.isEmpty() ? "User" : userName) + "!");
     }
 
+    /**
+     * Styles JLabels used in this panel.
+     * Configures text color and font to match the application's design.
+     * @param label The JLabel to style.
+     */
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
 
+    /**
+     * Styles JButtons used in this panel for logout and posting actions.
+     * Configures size, font, and other visual properties.
+     * @param button The JButton to style.
+     */
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(190, 75));
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
 
+    /**
+     * Styles logout and back buttons specifically.
+     * Sets opacity, size, font, and color properties to match the application's theme.
+     * @param button The JButton to style for logout and back actions.
+     */
     private void styleButtonLogOut(JButton button){
         button.setOpaque(true);
         button.setPreferredSize(new Dimension(120, 45));
@@ -113,10 +145,19 @@ public class PostPanel extends JPanel {
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
+    /**
+     * Sets the style for panels used in this class.
+     * Configures the background color.
+     * @param panel The JPanel to style.
+     */
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
     }
 
+    /**
+     * Handles the process of posting an image.
+     * Allows the user to select an image file, then uploads it to the server asynchronously.
+     */
     private void postImage(){
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", "webp");
@@ -182,6 +223,9 @@ public class PostPanel extends JPanel {
         }
     }
 
+    /**
+     * Logs out the current user by clearing session data and navigating back to the login panel.
+     */
     private void logout() {
         // Clear session data
         SessionManager.getInstance().setCurrentUserName(null);
@@ -193,11 +237,18 @@ public class PostPanel extends JPanel {
         mainFrame.showLoginPanel();
     }
 
+    /**
+     * Navigates back to the feed panel.
+     */
     private void back() {
         // Navigate back to the Feed panel
         mainFrame.showFeedPanel();
     }
 
+    /**
+     * Sets the username for the welcome message.
+     * @param userName The username to display in the welcome message.
+     */
     public void setUserName(String userName) {
         this.userName = userName;
     }

@@ -9,6 +9,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Class representing a panel where the feed of the application is displayed.
+ * Users can go to friends, update feed, view the feed, and leave comments.
+ * This class handles user interactions and updates the display based on the changes.
+ */
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
     private final MainFrame mainFrame;
@@ -16,11 +21,21 @@ public class FeedPanel extends JPanel {
     final float FRAME_WIDTH_WITH_GAP = 333;
     final float FRAME_HEIGHT_WITH_GAP = 592;
 
+    /**
+     * Constructor for FeedPanel class.
+     * Initializes the user interface components and sets the reference to the mainFrame.
+     * @param mainFrame MainFrame instance for communication between panels.
+     */
     public FeedPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initializeUI();
     }
 
+    /**
+     * Initializes and arranges all UI components within the panel.
+     * It sets up buttons like logout, update, and friends, and their respective action listeners.
+     * It also configures the panel's layout and styles.
+     */
     private void initializeUI() {
         setLayout(new BorderLayout());
 
@@ -131,6 +146,11 @@ public class FeedPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Updates the content of the feed panel by loading images and friend images.
+     * It removes all components from the imagePanel, fetches the current user's image and friends' images,
+     * and then updates the UI to display these images.
+     */
     public void updateContent() {
         System.out.println("Started updateContent");
         imagePanel.removeAll();
@@ -152,6 +172,11 @@ public class FeedPanel extends JPanel {
         System.out.println("Finished updateContent");
     }
 
+    /**
+     * Displays an image with the label provided in the parameter.
+     * It configures the image scaling, sets up comments and comment input, and adds it to the imagePanel.
+     * @param label The label of the image to display, usually the image title or related text.
+     */
     private void displayImage(String label) {
         System.out.println("Started displayImage");
         try {
@@ -286,6 +311,11 @@ public class FeedPanel extends JPanel {
         System.out.println("Finished displayImage");
     }
 
+    /**
+     * Displays an image of a friend identified by the friendId parameter.
+     * Similar to displayImage, but fetches the friend's image and sets up the view accordingly.
+     * @param friendId The unique identifier of the friend whose image is to be displayed.
+     */
     private void displayFriendImage(long friendId) {
         System.out.println("Fetching friend image");
         Image image = query.fetchFriendImage(friendId);
@@ -422,6 +452,9 @@ public class FeedPanel extends JPanel {
         }
     }
 
+    /**
+     * Logs out the current user by clearing session data and returning to the login panel.
+     */
     private void logout() {
         // Clear session data
         SessionManager.getInstance().setCurrentUserName(null);
@@ -433,10 +466,20 @@ public class FeedPanel extends JPanel {
         mainFrame.showLoginPanel();
     }
 
+    /**
+     * Sets the style for general panels within this class.
+     * Configures background color.
+     * @param panel The JPanel to style.
+     */
     private void stylePanel(JPanel panel) {
         panel.setBackground(Color.black);
     }
 
+    /**
+     * Sets the style for the west panels, specifically used for comment sections.
+     * Configures background color and border.
+     * @param panel The JPanel to style.
+     */
     private void styleWestPanel(JPanel panel) {
         panel.setBackground(Color.black);
         Border border = BorderFactory.createLineBorder(Color.BLACK, 5); // 2-pixel width white line border
@@ -444,12 +487,22 @@ public class FeedPanel extends JPanel {
 
     }
 
+    /**
+     * Styles the JScrollPane that contains the imagePanel.
+     * Sets the background color and border properties.
+     * @param scroll The JScrollPane to style.
+     */
     private void styleScroll(JScrollPane scroll) {
         scroll.setBackground(Color.black);
         scroll.setViewportBorder(null);
         scroll.setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
+    /**
+     * Sets the visual properties for labels used within this class.
+     * Adjusts alignment, font, and color to fit the panel's design.
+     * @param label The JLabel to style.
+     */
     private void styleLabel(JLabel label) {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setVerticalAlignment(JLabel.CENTER);
@@ -457,16 +510,31 @@ public class FeedPanel extends JPanel {
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 40));
     }
 
+    /**
+     * Sets the style specifically for labels used in the comment panels.
+     * Configures font and text color.
+     * @param label The JLabel to style for comments.
+     */
     private void styleCommentLabel(JLabel label) {
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 15));
     }
 
+    /**
+     * Sets the style for buttons used in this class.
+     * Configures size, font, and other visual properties.
+     * @param button The JButton to style.
+     */
     private void styleButton(JButton button){
         button.setBounds(10, 10, 100, 55);
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
+    /**
+     * Styles text fields used in the comment sections.
+     * Sets dimensions, font, color, and border properties.
+     * @param text The JTextField to style for comments.
+     */
     private void styleTextField(JTextField text){
         text.setSize(new Dimension(320, 32));
         text.setBackground(Color.BLACK);
@@ -476,6 +544,11 @@ public class FeedPanel extends JPanel {
         text.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
+    /**
+     * Styles the logout button and similar buttons like the update and friends buttons.
+     * Sets preferred size, background, font, and text color.
+     * @param button The JButton to style for logout and similar actions.
+     */
     private void styleButtonLogOut(JButton button){
         button.setPreferredSize(new Dimension(120, 45));
         button.setBackground(Color.black);
