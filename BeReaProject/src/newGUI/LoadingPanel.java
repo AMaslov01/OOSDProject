@@ -15,12 +15,9 @@ public class LoadingPanel extends JPanel {
 
     private void initializeUI() {
         setLayout(new BorderLayout());
-        //Image loadingIcon = new ImageIcon(getClass().getResource("/loading.gif")).getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         ImageIcon loadingIcon = new ImageIcon(getClass().getResource("/loading3.gif"));
 
-        //loadingLabel = new JLabel("Loading...", loadingIcon, JLabel.CENTER);
         loadingLabel = new JLabel(loadingIcon);
-        //loadingLabel.setBounds(200, 460, 100, 100);
         setBackground(new Color(0, 0, 0, 255));
         add(loadingLabel, BorderLayout.CENTER);
 

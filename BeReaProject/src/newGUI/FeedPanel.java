@@ -6,8 +6,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.sql.SQLException;
 
 public class FeedPanel extends JPanel {
     private JPanel imagePanel;
@@ -43,7 +41,7 @@ public class FeedPanel extends JPanel {
 
         //Setting Update Button
         JButton updateButton = new JButton("Update");
-        styleButtonLogOut(updateButton);
+        styleButtonLogOut(updateButton); // Repurpose styleButtonLogOut for updateButton
         updateButton.setFocusable(true);
         updateButton.addActionListener(new ActionListener() {
             @Override
@@ -69,6 +67,7 @@ public class FeedPanel extends JPanel {
         });
         topPanel.add(updateButton, BorderLayout.CENTER);
 
+        // Friends button
         JButton friendsButton = new JButton("Friends");
         friendsButton.setFocusable(false);
         friendsButton.addActionListener(new ActionListener() {
@@ -86,9 +85,8 @@ public class FeedPanel extends JPanel {
                     @Override
                     protected void done() {
                         // Once updating is complete, switch back to the friends panel
-                        SwingUtilities.invokeLater(() -> {
-                            mainFrame.showFriendsPanel(); // Show the friends panel
-                        });
+                        // Show the friends panel
+                        SwingUtilities.invokeLater(mainFrame::showFriendsPanel);
                     }
                 };
                 worker.execute(); // Start the worker thread
@@ -129,11 +127,6 @@ public class FeedPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
-/*        Timer timer = new Timer(100000, e -> {
-            updateContent();
-            System.out.println("Panel repainted!");
-        });
-        timer.start();*/
     }
 
     public void updateContent() {
@@ -194,8 +187,6 @@ public class FeedPanel extends JPanel {
             Image scaledImage = image.getScaledInstance(rdWidth, rdHeight, Image.SCALE_SMOOTH);
             picLabel.setIcon(new ImageIcon(scaledImage));
             styleLabel(picLabel);
-            //Border border = BorderFactory.createLineBorder(Color.WHITE, 0); // 2-pixel width white line border
-            //panel.setBorder(border);
             panel.add(picLabel, BorderLayout.CENTER);
 
             // Setting Comment Panel
@@ -203,7 +194,6 @@ public class FeedPanel extends JPanel {
             stylePanel(commentPanel);
 
             // Setting Array for comments
-
             long beRealId = SessionManager.getInstance().getCurrentBeRealId();
             String[][] comments = query.fetchUserComments(beRealId);
 
@@ -339,8 +329,6 @@ public class FeedPanel extends JPanel {
                 styleLabel(picLabel);
                 picLabel.setIcon(new ImageIcon(scaledImage));
                 panel.add(picLabel, BorderLayout.CENTER);
-
-                // Adding panel to imagePanel
                 stylePanel(panel);
 
                 // Setting Comment Panel
@@ -350,12 +338,6 @@ public class FeedPanel extends JPanel {
                 // Setting Array for comments
                 long beRealId = query.fetchUserBeRealId(friendId);
                 String[][] comments = query.fetchUserComments(beRealId);
-                //System.out.println(friendId + " berealID: " + beRealId);
-                /*for (String[] value : comments) {
-                    for (int j = 0; j < 2; j++) {
-                        System.out.println(value[j]);
-                    }
-                }*/
 
                 // Setting Comment Button for West Comment Panel
                 JPanel westPanel = new JPanel();

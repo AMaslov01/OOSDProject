@@ -1,7 +1,6 @@
 package newGUI;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,14 +12,11 @@ public class FriendsPanel extends JPanel {
     private JTextField usernameField;
     private JButton addButton, deleteButton;
     private JPanel friendsListPanel;  // Panel to display friends
-    private JScrollPane scrollPane;  // Scrollable view for the friends list
 
     public FriendsPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initializeUI();
     }
-
-    // TODO: fix the loading pause when adding/deleting a friend
 
     private void initializeUI() {
         setLayout(new BorderLayout());
@@ -71,23 +67,6 @@ public class FriendsPanel extends JPanel {
         friendsListPanel = new JPanel();
         stylePanel(friendsListPanel);
         friendsListPanel.setLayout(new GridBagLayout());
-
-        /*// Setting Panel for Scroll Panel
-        JPanel panelForScrollPanel = new JPanel();
-        panelForScrollPanel.setLayout(new BoxLayout(panelForScrollPanel, BoxLayout.Y_AXIS));
-        Border border = BorderFactory.createLineBorder(Color.WHITE, 1); // 2-pixel width white line border
-        panelForScrollPanel.setBorder(border);
-        System.out.println("Panel fro scroll: " + panelForScrollPanel.getHeight());
-        stylePanel(panelForScrollPanel);
-
-        // Scroll panel
-        scrollPane = new JScrollPane(friendsListPanel);
-        styleScrollPanel(scrollPane);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        panelForScrollPanel.add(scrollPane);*/
-
         add(friendsListPanel, BorderLayout.SOUTH);
     }
 
@@ -127,7 +106,6 @@ public class FriendsPanel extends JPanel {
                 try {
                     boolean success = get();
                     if (success) {
-                        //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         updateFriendsList();  // Update the friend list display
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not add user as friend. They may already be your friend or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -172,7 +150,6 @@ public class FriendsPanel extends JPanel {
                 try {
                     boolean success = get();
                     if (success) {
-                        //JOptionPane.showMessageDialog(FriendsPanel.this, "Friend deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         updateFriendsList();  // Update the friend list display
                     } else {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not delete friend. They may not be your friend, or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);

@@ -1,8 +1,6 @@
 package newGUI;
 
 import java.awt.*;
-import java.io.File;
-import java.sql.Blob;
 
 public class SessionManager {
     private String currentUserName;

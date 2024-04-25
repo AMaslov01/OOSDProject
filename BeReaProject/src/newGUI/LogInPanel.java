@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class LogInPanel extends JPanel {
@@ -12,7 +11,6 @@ public class LogInPanel extends JPanel {
     private JPasswordField passWordField;
     private JButton logInButton;
     private JButton registerButton;
-    private JButton logoutButton;
     private MainFrame mainFrame;  // Reference to the main application window
 
     public LogInPanel(MainFrame mainFrame) {

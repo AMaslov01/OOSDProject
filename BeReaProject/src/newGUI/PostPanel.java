@@ -140,7 +140,6 @@ public class PostPanel extends JPanel {
                             long imageID = query.fetchUserImageId();
 
                             query.executeBeReal(imageID, SessionManager.getInstance().getCurrentUserId());
-
                             long beRealId = query.fetchUserBeRealId(SessionManager.getInstance().getCurrentUserId());
                             SessionManager.getInstance().setCurrentBeRealId(beRealId);
 
@@ -148,7 +147,6 @@ public class PostPanel extends JPanel {
 
                             SessionManager.getInstance().setCurrentImage(image);
                             System.out.println("Successful upload");
-                            //mainFrame.getFeedPanel().updateContent(); // Direct call to update content
                             System.out.println("Updated feed panel");
 
                             mainFrame.updateUserSession(SessionManager.getInstance().getCurrentUserName());

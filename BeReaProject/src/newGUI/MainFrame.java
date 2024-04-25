@@ -47,6 +47,8 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
 
+
+    // Methods to switch between panels
     public void showLoginPanel() {
         loginPanel.clearTextFields(); // Clear text fields when returning to the panel
         cardLayout.show(cardPanel, "Login");
@@ -87,7 +89,7 @@ public class MainFrame extends JFrame {
         long berealID = query.fetchUserBeRealId(userId);
         SessionManager.getInstance().setCurrentBeRealId(berealID);
 
-        // Now update UI components
+        // Update UI components
         postPanel.updateUserName();
         feedPanel.updateContent(); // TODO: Later to check for existing BeReal
         postPanel.setUserName(userName);

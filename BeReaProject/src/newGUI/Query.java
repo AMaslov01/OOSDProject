@@ -167,8 +167,6 @@ public class Query {
         return null;
     }
 
-
-
     // Method for fetching comments under specific BeReal
     public String[][] fetchUserComments(long beRealId) {
         String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
@@ -239,7 +237,6 @@ public class Query {
         return beRealId;
     }
 
-
     // Method for returning a name of a certain user/friend
     public String fetchUserNameFromDatabase(long userId) {
         String sql = "SELECT `username` FROM `User` WHERE `userID` = ?";
@@ -257,33 +254,7 @@ public class Query {
         return null; // Return null or throw an exception if user not found or error occurs
     }
 
-    /*
-     * Asynchronously authenticate a user.
-     * username: The username of the user attempting to log in.
-     * password: The password of the user.
-     * callback: Callback that handles what happens after login attempt.
-     */
-    public void authenticateUserAsync(String username, String password, SwingWorker<Boolean, Void> callback) {
-        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Boolean doInBackground() throws Exception {
-                return authenticateUser(username, password);
-            }
-
-            @Override
-            protected void done() {
-                callback.run();
-            }
-        };
-        worker.execute();
-    }
-
-    /*
-     * Synchronously authenticate a user.
-     * username: The username.
-     * password: The password.
-     * return True if authentication is successful, false otherwise.
-     */
+    // Method for authenticating User
     public boolean authenticateUser(String username, String password) throws SQLException {
         String sql = "SELECT `userID` FROM `User` WHERE `username` = ? AND `password` = ?";
         try (Connection conn = getConnection();
@@ -295,6 +266,7 @@ public class Query {
         }
     }
 
+    // Method for registering User
     public boolean registerUser(String username, String password) throws SQLException {
         String sql1 = "SELECT * FROM `User` WHERE `username` = ?";
         try (Connection conn = getConnection();
@@ -316,6 +288,7 @@ public class Query {
         }
     }
 
+    // Method for adding Friend
     public boolean addFriend(long userId, String friendUsername) throws SQLException {
         long friendId = fetchUserIdFromDatabase(friendUsername);
         if (friendId == -1) {

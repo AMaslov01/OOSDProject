@@ -122,7 +122,6 @@ public class RegisterPanel extends JPanel {
                     try {
                         boolean success = get();
                         if (success) {
-                            // JOptionPane.showMessageDialog(RegisterPanel.this, "Registration Successful!", "Success!", JOptionPane.INFORMATION_MESSAGE);
                             mainFrame.showLoginPanel(); // Navigate back to the login panel after successful registration
                         } else {
                             JOptionPane.showMessageDialog(RegisterPanel.this, "This Username Is Taken!", "Error", JOptionPane.ERROR_MESSAGE);
