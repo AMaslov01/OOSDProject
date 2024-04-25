@@ -98,6 +98,7 @@ public class FriendsPanel extends JPanel {
                     long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
                     SessionManager.getInstance().setFriends(friendsIds);
                     mainFrame.getFeedPanel().updateContent();
+                    updateFriendsList();  // Update the friend list display
                     return true;
                 }
                 return false;
@@ -107,9 +108,7 @@ public class FriendsPanel extends JPanel {
             protected void done() {
                 try {
                     boolean success = get();
-                    if (success) {
-                        updateFriendsList();  // Update the friend list display
-                    } else {
+                    if (!success) {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not add user as friend. They may already be your friend or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     mainFrame.showFriendsPanel(); // Refresh friends panel
@@ -142,6 +141,7 @@ public class FriendsPanel extends JPanel {
                     long[] friendsIds = query.fetchFriendsIdsFromDatabase(userId);
                     SessionManager.getInstance().setFriends(friendsIds);
                     mainFrame.getFeedPanel().updateContent();
+                    updateFriendsList();  // Update the friend list display
                     return true;
                 }
                 return false;
@@ -151,9 +151,7 @@ public class FriendsPanel extends JPanel {
             protected void done() {
                 try {
                     boolean success = get();
-                    if (success) {
-                        updateFriendsList();  // Update the friend list display
-                    } else {
+                    if (!success) {
                         JOptionPane.showMessageDialog(FriendsPanel.this, "Could not delete friend. They may not be your friend, or the username does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     mainFrame.showFriendsPanel(); // Refresh friends panel
