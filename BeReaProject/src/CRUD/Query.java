@@ -1,164 +1,349 @@
 package CRUD;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Query {
     String url = "jdbc:mysql://37.27.34.21:3306/BeReal"; // JDBC URL for the MySQL database
     String user = "root"; // Username for database authentication
     String password = "xyrbib-1gitvY-ruvkok"; // Password for database authentication
-    public Query(){}
-    public void execute(String sql){
-        Connection connection = null; // Connection object to establish a connection with the database
-        PreparedStatement pstat = null; // PreparedStatement object for executing parameterized SQL queries
-        int i = 0;
-        try {
-            // Establish connection to the database
-            connection = DriverManager.getConnection(url, user, password);
 
-            // Prepare the SQL statement with a placeholder for username
-            pstat = connection.prepareStatement(sql);
+    // Shared method to get a DB connection
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
+    }
 
-            // Execute the SQL statement and get the number of rows affected
-            i = pstat.executeUpdate();
-
-            // Print the number of records successfully added to the table
-            System.out.println(i + " record successfully added to the table.");
-        } catch(SQLException | RuntimeException e) {
-            // Handle SQLException by printing the stack trace
-            e.printStackTrace();
-        } finally {
-            // Close the PreparedStatement and Connection objects in a finally block to ensure resources are released
-            try {
-                if (pstat != null) {
-                    pstat.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (Exception exception) {
-                // Handle any exceptions that occur while closing resources by printing the stack trace
-                exception.printStackTrace();
-            }
+    // Execute non-return SQL commands
+    public void execute(String sql) throws SQLException {
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            int result = pstat.executeUpdate();
+            System.out.println(result + " record(s) successfully added/modified.");
         }
     }
-    public Object[][] retrieve(String sql){
 
-
-        try {
-            // Establish connection
-            Connection connection = DriverManager.getConnection(url, user, password);
-
-            // Create a statement
-            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            // Select the database
-            String databaseName = "BeReal";
-            statement.execute("USE " + databaseName);
-
-            // Execute a SELECT query
-
-            ResultSet resultSet = statement.executeQuery(sql);
+    // Retrieve data from the database
+    public Object[][] retrieve(String sql) throws SQLException {
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+             ResultSet resultSet = statement.executeQuery(sql)) {
             int columns = resultSet.getMetaData().getColumnCount();
-            int strings = 0;
-            while (resultSet.next()){
-                strings++;
-            }
+            resultSet.last();
+            int rows = resultSet.getRow();
             resultSet.beforeFirst();
-
-            Object[][] res = new Object[strings][columns];
+            Object[][] res = new Object[rows][columns];
             int i = 0;
-            // Process the result set
-
             while (resultSet.next()) {
-                // Access data from the result set
-                for(int j = 1; j <= columns; j++){
-                    Object value = resultSet.getObject(j);
-                    res[i][j-1] = value;
+                for (int j = 1; j <= columns; j++) {
+                    res[i][j - 1] = resultSet.getObject(j);
                 }
                 i++;
             }
-            // Close resources
-            resultSet.close();
-            statement.close();
-            connection.close();
-            return res;
-        } catch (SQLException | RuntimeException e) {
-            e.printStackTrace();
-            Object[][] res = null;
             return res;
         }
-
     }
-    public Blob blobRetrieve(String sql){
 
+    // Executing non-return blob update
+    public void blobExecute(byte[] data) throws SQLException {
+        String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            pstat.setBytes(1, data);
+            int result = pstat.executeUpdate();
+            System.out.println(result + " blob record successfully added to the table.");
+        }
+    }
 
+    // Method for fetching latest imageID
+    public long fetchUserImageId() {
+        String sql = "SELECT MAX(`imageID`) FROM `Image`";
+        long imageId = 0;
         try {
-            // Establish connection
-            Connection connection = DriverManager.getConnection(url, user, password);
-
-            // Create a statement
-            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            // Select the database
-            String databaseName = "BeReal";
-            statement.execute("USE " + databaseName);
-            Blob res = null;
-            // Execute a SELECT query
-
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
-            resultSet.beforeFirst();
             if(resultSet.next()){
-                res = resultSet.getBlob(1);
+                imageId = resultSet.getLong(1);
             }
-            else{
-                System.out.println("blob is null");
-            }
-
-
-            // Close resources
-            resultSet.close();
-            statement.close();
-            connection.close();
-            return res;
-        } catch (SQLException | RuntimeException e) {
+            return imageId;
+        } catch (SQLException e) {
             e.printStackTrace();
-            Blob res = null;
-            return res;
+            System.out.println("Error retrieving user's imageID: " + e.getMessage());
         }
-
+        return imageId;
     }
-    public void blobExecute(String sql, byte[] arr) {
-        Connection connection = null;
-        PreparedStatement pstat = null;
-        int i;
+
+    // Retrieve a blob from the database
+    public Image fetchUserImage(long userID) throws SQLException {
         try {
-            connection = DriverManager.getConnection(url, user, password);
-
-            // Prepare the SQL statement with a placeholder for username
-            pstat = connection.prepareStatement(sql);
-            pstat.setBytes(1, arr);
-
-            // Execute the SQL statement and get the number of rows affected
-            i = pstat.executeUpdate();
-
-            // Print the number of records successfully added to the table
-            System.out.println(i + " record successfully added to the table.");
-        } catch (SQLException | RuntimeException e) {
-            // Handle SQLException by printing the stack trace
-            e.printStackTrace();
-        } finally {
-            // Close the PreparedStatement and Connection objects in a finally block to ensure resources are released
-            try {
-                if (pstat != null) {
-                    pstat.close();
+            Connection connection = getConnection();
+             String sql = "SELECT i.image FROM Image i JOIN BeReal b ON i.imageID = b.imageID WHERE b.userID = " + userID
+                     + " AND b.berealID = (SELECT MAX(b.berealID) FROM BeReal b WHERE b.userID = " + userID + ")";
+             PreparedStatement pstmt = connection.prepareStatement(sql);
+             ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                Blob blob = resultSet.getBlob(1);
+                if (blob != null) {
+                    try (InputStream inputStream = blob.getBinaryStream()) {
+                        return ImageIO.read(inputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (Exception exception) {
-                // Handle any exceptions that occur while closing resources by printing the stack trace
-                exception.printStackTrace();
+            } else {
+                System.out.println("No data found.");
+                return null;
             }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Fetching a userID from given username from the DB
+    public long fetchUserIdFromDatabase(String userName) {
+        String sql = "SELECT `userID` FROM `User` WHERE `username` = ?";
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, userName);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("userID");
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 or throw an exception if user not found or error occurs
+    }
+
+    // Fetching an array of friends of a specific given userID
+    public long[] fetchFriendsIdsFromDatabase(long userId) {
+        String sql = "SELECT `UserID2` FROM `User_to_User` WHERE `UserID1` = ?";
+        List<Long> friendsList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                friendsList.add(rs.getLong("userID2"));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return friendsList.stream().mapToLong(l -> l).toArray();
+    }
+
+    // Method for fetching friends images
+    public Image fetchFriendImage(long userId) {
+        String sql = "SELECT i.image FROM Image i " +
+                "JOIN BeReal b ON i.imageID = b.imageID " +
+                "WHERE b.userID = ? AND " +
+                "b.beRealID = (SELECT MAX(beRealID) FROM BeReal WHERE userID = ?);";
+        try (Connection connection = getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, userId);
+            ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                Blob blob = resultSet.getBlob(1);
+                if (blob != null) {
+                    try (InputStream inputStream = blob.getBinaryStream()) {
+                        return ImageIO.read(inputStream);
+                    }
+                }
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving friend's image: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Method for fetching comments under specific BeReal
+    public String[][] fetchUserComments(long beRealId) {
+        String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet resultSet = statement.executeQuery(sql);
+            resultSet.last();
+            int rows = resultSet.getRow();
+            System.out.println("rows: " + rows);
+            resultSet.beforeFirst();
+            String[][] comments = new String[rows][2];
+            int i = 0;
+            while (resultSet.next()) {
+                for (int j = 1; j <= 2; j++) {
+                    comments[i][j - 1] = resultSet.getString(j);
+                }
+                i++;
+            }
+            return comments;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving friend's comments: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public void executeComment(String commentText, long userID, long beRealId) {
+        String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            int result = pstat.executeUpdate();
+            System.out.println(result + " record(s) successfully added.");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
+
+    // Method for adding BeReal to DB
+    public void executeBeReal(long imageID, long userID) {
+        String sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES (" + imageID + "," + userID + ")";
+        try (Connection connection = getConnection();
+             PreparedStatement pstat = connection.prepareStatement(sql)) {
+            int result = pstat.executeUpdate();
+            System.out.println(result + " record(s) successfully added.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method for fetching user's latest BeRealID
+    public long fetchUserBeRealId(long userId) {
+        String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE userID = " + userId;
+        long beRealId = 0;
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            if(resultSet.next()){
+                beRealId = resultSet.getLong(1);
+            }
+            return beRealId;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error retrieving user's berealID: " + e.getMessage());
+        }
+        return beRealId;
+    }
+
+    // Method for returning a name of a certain user/friend
+    public String fetchUserNameFromDatabase(long userId) {
+        String sql = "SELECT `username` FROM `User` WHERE `userID` = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null or throw an exception if user not found or error occurs
+    }
+
+    // Method for authenticating User
+    public boolean authenticateUser(String username, String password) throws SQLException {
+        String sql = "SELECT `userID` FROM `User` WHERE `username` = ? AND `password` = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next(); // Return true if a row exists (i.e., user found)
+        }
+    }
+
+    // Method for registering User
+    public boolean registerUser(String username, String password) throws SQLException {
+        String sql1 = "SELECT * FROM `User` WHERE `username` = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql1)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return false; // Username already exists
+            }
+        }
+
+        String sql2 = "INSERT INTO User(username, password) VALUES(?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql2)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    // Method for adding Friend
+    public boolean addFriend(long userId, String friendUsername) throws SQLException {
+        long friendId = fetchUserIdFromDatabase(friendUsername);
+        if (friendId == -1) {
+            return false; // Friend username does not exist
+        }
+
+        if (alreadyFriends(userId, friendId)) {
+            return false; // They are already friends
+        }
+
+        String sql = "INSERT INTO User_to_User (UserID1, UserID2) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            int rowsAffected = pstmt.executeUpdate();
+            pstmt.setLong(2, userId);
+            pstmt.setLong(1, friendId);
+            rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    // Helper method to check if two users are already friends
+    private boolean alreadyFriends(long userId, long friendId) throws SQLException {
+        String sql = "SELECT * FROM User_to_User WHERE (UserID1 = ? AND UserID2 = ?) OR (UserID1 = ? AND UserID2 = ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            pstmt.setLong(3, friendId);
+            pstmt.setLong(4, userId);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        }
+    }
+
+    // Method to delete a friend
+    public boolean deleteFriend(long userId, String friendUsername) throws SQLException {
+        long friendId = fetchUserIdFromDatabase(friendUsername);
+        if (friendId == -1 || !alreadyFriends(userId, friendId)) {
+            return false; // Friend username does not exist or they are not friends
+        }
+
+        String sql = "DELETE FROM User_to_User WHERE (UserID1 = ? AND UserID2 = ?) OR (UserID1 = ? AND UserID2 = ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, friendId);
+            pstmt.setLong(3, friendId);
+            pstmt.setLong(4, userId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    public Query() {}
 }

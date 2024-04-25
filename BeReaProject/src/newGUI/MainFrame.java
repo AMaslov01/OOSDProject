@@ -1,9 +1,9 @@
 package newGUI;
 
+import CRUD.Query;
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.sql.Blob;
 import java.sql.SQLException;
 
 

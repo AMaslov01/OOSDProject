@@ -1,5 +1,7 @@
 package newGUI;
 
+import CRUD.Query;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
