@@ -72,7 +72,6 @@ public class FriendsPanel extends JPanel {
         add(friendsListPanel, BorderLayout.SOUTH);
     }
 
-    // Method for adding a friend
     private void addFriend(ActionEvent e) {
         String username = usernameField.getText().trim();
         if (username.isEmpty()) {

@@ -152,7 +152,6 @@ public class FeedPanel extends JPanel {
         System.out.println("Finished updateContent");
     }
 
-    // Method for displaying user's image
     private void displayImage(String label) {
         System.out.println("Started displayImage");
         try {

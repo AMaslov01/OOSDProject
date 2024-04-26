@@ -1,7 +1,6 @@
 package CRUD;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,17 +8,30 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles all database interaction for the application, including user authentication, registration, and data retrieval.
+ * Provides methods for executing SQL commands and managing user data, such as images and comments.
+ */
 public class Query {
+    // Fields
     String url = "jdbc:mysql://37.27.34.21:3306/BeReal"; // JDBC URL for the MySQL database
     String user = "root"; // Username for database authentication
     String password = "xyrbib-1gitvY-ruvkok"; // Password for database authentication
 
-    // Shared method to get a DB connection
+    /**
+     * Establishes a database connection using configured credentials.
+     * @return A new Connection object to the database.
+     * @throws SQLException if a database access error occurs or the url is null.
+     */
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
 
-    // Execute non-return SQL commands
+    /**
+     * Executes a SQL command that does not return a result set.
+     * @param sql The SQL statement to execute.
+     * @throws SQLException if a database access error occurs.
+     */
     public void execute(String sql) throws SQLException {
         try (Connection connection = getConnection();
              PreparedStatement pstat = connection.prepareStatement(sql)) {
@@ -28,7 +40,12 @@ public class Query {
         }
     }
 
-    // Retrieve data from the database
+    /**
+     * Retrieves data from the database.
+     * @param sql The SQL query to execute.
+     * @return A 2D Object array containing the data retrieved from the database.
+     * @throws SQLException if a database access error occurs.
+     */
     public Object[][] retrieve(String sql) throws SQLException {
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -49,7 +66,11 @@ public class Query {
         }
     }
 
-    // Executing non-return blob update
+    /**
+     * Inserts a blob (binary large object) into the database.
+     * @param data The byte array containing the blob data to be inserted.
+     * @throws SQLException if a database access error occurs.
+     */
     public void blobExecute(byte[] data) throws SQLException {
         String sql = "INSERT INTO `Image`(`image`) VALUES (?)";
         try (Connection connection = getConnection();
@@ -60,7 +81,10 @@ public class Query {
         }
     }
 
-    // Method for fetching latest imageID
+    /**
+     * Retrieves the latest image ID from the database.
+     * @return The maximum image ID found in the database.
+     */
     public long fetchUserImageId() {
         String sql = "SELECT MAX(`imageID`) FROM `Image`";
         long imageId = 0;
@@ -79,7 +103,12 @@ public class Query {
         return imageId;
     }
 
-    // Retrieve a blob from the database
+    /**
+     * Retrieves an image from the database for a specific user.
+     * @param userID The ID of the user whose image is to be fetched.
+     * @return The Image object retrieved from the database.
+     * @throws SQLException if a database access error occurs.
+     */
     public Image fetchUserImage(long userID) throws SQLException {
         try {
             Connection connection = getConnection();
@@ -106,7 +135,11 @@ public class Query {
         return null;
     }
 
-    // Fetching a userID from given username from the DB
+    /**
+     * Fetches a user ID from the database based on a provided username.
+     * @param userName The username for which the user ID needs to be fetched.
+     * @return The user ID associated with the given username.
+     */
     public long fetchUserIdFromDatabase(String userName) {
         String sql = "SELECT `userID` FROM `User` WHERE `username` = ?";
         try (Connection connection = DriverManager.getConnection(url, user, password);
@@ -123,7 +156,11 @@ public class Query {
         return -1; // Return -1 or throw an exception if user not found or error occurs
     }
 
-    // Fetching an array of friends of a specific given userID
+    /**
+     * Retrieves a list of friend IDs from the database for a given user.
+     * @param userId The user ID for whom to fetch the friend IDs.
+     * @return An array of long integers representing the IDs of friends.
+     */
     public long[] fetchFriendsIdsFromDatabase(long userId) {
         String sql = "SELECT `UserID2` FROM `User_to_User` WHERE `UserID1` = ?";
         List<Long> friendsList = new ArrayList<>();
@@ -141,7 +178,11 @@ public class Query {
         return friendsList.stream().mapToLong(l -> l).toArray();
     }
 
-    // Method for fetching friends images
+    /**
+     * Fetches the latest image for a friend from the database.
+     * @param userId The ID of the user whose friend's image is to be fetched.
+     * @return The Image object retrieved from the database.
+     */
     public Image fetchFriendImage(long userId) {
         String sql = "SELECT i.image FROM Image i " +
                 "JOIN BeReal b ON i.imageID = b.imageID " +
@@ -167,7 +208,11 @@ public class Query {
         return null;
     }
 
-    // Method for fetching comments under specific BeReal
+    /**
+     * Fetches comments associated with a specific BeReal post.
+     * @param beRealId The BeReal ID for which comments are fetched.
+     * @return A 2D String array containing usernames and their respective comments.
+     */
     public String[][] fetchUserComments(long beRealId) {
         String sql = "SELECT u.username, c.text FROM Comment c JOIN User u ON c.userID = u.userID WHERE c.berealID = " + beRealId;
         try {
@@ -195,6 +240,12 @@ public class Query {
         return null;
     }
 
+    /**
+     * Inserts a comment into the database.
+     * @param commentText The text of the comment to insert.
+     * @param userID The ID of the user posting the comment.
+     * @param beRealId The ID of the BeReal post to which the comment is associated.
+     */
     public void executeComment(String commentText, long userID, long beRealId) {
         String sql = "INSERT INTO `Comment`( `text`, `userID`, `berealID`) VALUES ('" + commentText + "','" + userID + "', '" + beRealId + "')";
         try (Connection connection = getConnection();
@@ -206,7 +257,11 @@ public class Query {
         }
     }
 
-    // Method for adding BeReal to DB
+    /**
+     * Inserts a new BeReal post into the database.
+     * @param imageID The ID of the image associated with the BeReal post.
+     * @param userID The ID of the user creating the BeReal post.
+     */
     public void executeBeReal(long imageID, long userID) {
         String sql = "INSERT INTO `BeReal`(`imageID`, `userID`) VALUES (" + imageID + "," + userID + ")";
         try (Connection connection = getConnection();
@@ -218,7 +273,11 @@ public class Query {
         }
     }
 
-    // Method for fetching user's latest BeRealID
+    /**
+     * Fetches the latest BeReal ID for a user.
+     * @param userId The user ID for whom the latest BeReal ID is fetched.
+     * @return The latest BeReal ID associated with the user.
+     */
     public long fetchUserBeRealId(long userId) {
         String sql = "SELECT MAX(`berealID`) FROM `BeReal` WHERE userID = " + userId;
         long beRealId = 0;
@@ -237,7 +296,11 @@ public class Query {
         return beRealId;
     }
 
-    // Method for returning a name of a certain user/friend
+    /**
+     * Fetches the username for a given user ID.
+     * @param userId The user ID for which the username is fetched.
+     * @return The username associated with the given user ID.
+     */
     public String fetchUserNameFromDatabase(long userId) {
         String sql = "SELECT `username` FROM `User` WHERE `userID` = ?";
         try (Connection connection = getConnection();
@@ -254,7 +317,13 @@ public class Query {
         return null; // Return null or throw an exception if user not found or error occurs
     }
 
-    // Method for authenticating User
+    /**
+     * Authenticates a user based on the provided username and password.
+     * @param username The username to authenticate.
+     * @param password The password to authenticate against.
+     * @return true if the authentication is successful, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean authenticateUser(String username, String password) throws SQLException {
         String sql = "SELECT `userID` FROM `User` WHERE `username` = ? AND `password` = ?";
         try (Connection conn = getConnection();
@@ -266,7 +335,13 @@ public class Query {
         }
     }
 
-    // Method for registering User
+    /**
+     * Registers a new user in the database.
+     * @param username The username for the new user.
+     * @param password The password for the new user.
+     * @return true if the registration is successful, false if the username already exists.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean registerUser(String username, String password) throws SQLException {
         String sql1 = "SELECT * FROM `User` WHERE `username` = ?";
         try (Connection conn = getConnection();
@@ -288,7 +363,13 @@ public class Query {
         }
     }
 
-    // Method for adding Friend
+    /**
+     * Adds a friend for a given user.
+     * @param userId The user ID who is adding a friend.
+     * @param friendUsername The username of the friend to add.
+     * @return true if the friend is added successfully, false if the friend does not exist or they are already friends.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean addFriend(long userId, String friendUsername) throws SQLException {
         long friendId = fetchUserIdFromDatabase(friendUsername);
         if (friendId == -1) {
@@ -312,7 +393,13 @@ public class Query {
         }
     }
 
-    // Helper method to check if two users are already friends
+    /**
+     * Checks if already friends.
+     * @param userId The user ID who is deleting a friend.
+     * @param friendId The id of the friend to delete.
+     * @return true if the friend is deleted successfully, false if the friend does not exist or they are not friends.
+     * @throws SQLException if a database access error occurs.
+     */
     private boolean alreadyFriends(long userId, long friendId) throws SQLException {
         String sql = "SELECT * FROM User_to_User WHERE (UserID1 = ? AND UserID2 = ?) OR (UserID1 = ? AND UserID2 = ?)";
         try (Connection conn = getConnection();
@@ -326,7 +413,13 @@ public class Query {
         }
     }
 
-    // Method to delete a friend
+    /**
+     * Deletes a friend for a given user.
+     * @param userId The user ID who is deleting a friend.
+     * @param friendUsername The username of the friend to delete.
+     * @return true if the friend is deleted successfully, false if the friend does not exist or they are not friends.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean deleteFriend(long userId, String friendUsername) throws SQLException {
         long friendId = fetchUserIdFromDatabase(friendUsername);
         if (friendId == -1 || !alreadyFriends(userId, friendId)) {
@@ -345,5 +438,8 @@ public class Query {
         }
     }
 
+    /**
+     * Constructor for the Query class.
+     */
     public Query() {}
 }
