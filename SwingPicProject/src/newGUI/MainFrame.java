@@ -27,7 +27,7 @@ public class MainFrame extends JFrame {
      * Initializes and adds all panels to the card layout.
      */
     public MainFrame() {
-        super("BeReal");
+        super("SwingPic");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(500, 888);
 
