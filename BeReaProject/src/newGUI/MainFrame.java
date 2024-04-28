@@ -22,7 +22,7 @@ public class MainFrame extends JFrame {
     private Query query = new Query();
 
     /**
-     * Constructor for MainFrame.
+     * Constructor for MainFrame class.
      * Sets up the application's main window with various panels using a CardLayout to switch between them.
      * Initializes and adds all panels to the card layout.
      */

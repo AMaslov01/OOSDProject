@@ -123,7 +123,7 @@ public class PostPanel extends JPanel {
     }
 
     /**
-     * Styles JButtons used in this panel for logout and posting actions.
+     * Styles JButtons used in this panel for Logout and posting actions.
      * Configures size, font, and other visual properties.
      * @param button The JButton to style.
      */

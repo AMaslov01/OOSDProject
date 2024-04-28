@@ -8,6 +8,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Class representing a panel where users can manage their friends.
+ * Users can add new friends, delete existing ones, and view their current friends list.
+ * This class handles user interactions and updates the display based on the changes.
+ */
 public class FriendsPanel extends JPanel {
     private MainFrame mainFrame;
     private JButton backButton;
@@ -15,11 +20,20 @@ public class FriendsPanel extends JPanel {
     private JButton addButton, deleteButton;
     private JPanel friendsListPanel;  // Panel to display friends
 
+    /**
+     * Constructor for FriendsPanel.
+     * Sets up the UI components and initializes interaction mechanisms within the panel.
+     * @param mainFrame The main application window that holds the panel.
+     */
     public FriendsPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initializeUI();
     }
 
+    /**
+     * Initializes the user interface components of the panel.
+     * Configures layout, styles, and sets up buttons and their event handlers.
+     */
     private void initializeUI() {
         setLayout(new BorderLayout());
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -72,7 +86,12 @@ public class FriendsPanel extends JPanel {
         add(friendsListPanel, BorderLayout.SOUTH);
     }
 
-    // Method for adding a friend
+    /**
+     * Handles the addition of a friend by username.
+     * If the username field is not empty and is not the user's own username, it attempts to add the friend.
+     * Displays messages based on the success or failure of adding a friend.
+     * @param e The action event triggering this method.
+     */
     private void addFriend(ActionEvent e) {
         String username = usernameField.getText().trim();
         if (username.isEmpty()) {
@@ -122,6 +141,12 @@ public class FriendsPanel extends JPanel {
         worker.execute();
     }
 
+    /**
+     * Handles the deletion of a friend by username.
+     * If the username field is not empty, it attempts to delete the friend.
+     * Displays messages based on the success or failure of deleting a friend.
+     * @param e The action event triggering this method.
+     */
     private void deleteFriend(ActionEvent e) {
         String username = usernameField.getText().trim();
         if (username.isEmpty()) {
@@ -165,6 +190,10 @@ public class FriendsPanel extends JPanel {
         worker.execute();
     }
 
+    /**
+     * Updates the friends list display.
+     * Clears the current display and fetches updated friend data, then displays each friend's name.
+     */
     public void updateFriendsList() {
         friendsListPanel.removeAll();  // Clear existing labels
         long[] friendIds = SessionManager.getInstance().getFriends();  // Get friend IDs from SessionManager
@@ -203,6 +232,11 @@ public class FriendsPanel extends JPanel {
         friendsListPanel.repaint();
     }
 
+    /**
+     * Styles the back button.
+     * Sets opacity, size, font, and color properties to match the application's theme.
+     * @param button The JButton to style.
+     */
     private void styleButtonBack(JButton button){
         button.setOpaque(true);
         button.setPreferredSize(new Dimension(120, 45));
@@ -211,32 +245,50 @@ public class FriendsPanel extends JPanel {
         button.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
+    /**
+     * Sets the style for panels used in this class.
+     * Configures the background color.
+     * @param panel The JPanel to style.
+     */
     private void stylePanel(JPanel panel){
         panel.setBackground(Color.black);
     }
 
-    private void styleScrollPanel(JScrollPane panel){
-        panel.setBackground(Color.black);
-        panel.setViewportBorder(null);
-        panel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        panel.setMaximumSize(new Dimension(mainFrame.getWidth(), 200));
-    }
-
+    /**
+     * Styles labels used in this class for various purposes like displaying usernames.
+     * Sets font and color to match the application's design.
+     * @param label The JLabel to style.
+     */
     private void styleLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 30));
     }
 
+    /**
+     * Styles labels specifically used to display friend names in the friends list.
+     * Configures text color and font.
+     * @param label The JLabel to style for friend names.
+     */
     private void styleFriendNameLabel(JLabel label){
         label.setForeground(Color.white);
         label.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
     }
 
+    /**
+     * Styles text fields used for input, such as the username field.
+     * Sets preferred size and font.
+     * @param text The JTextField to style.
+     */
     private void styleText(JTextField text){
         text.setPreferredSize(new Dimension(100, 35));
         text.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));
     }
 
+    /**
+     * Styles generic buttons used in this class.
+     * Configures size and font for buttons like add and delete friends.
+     * @param button The JButton to style.
+     */
     private void styleButton(JButton button){
         button.setPreferredSize(new Dimension(200, 50));
         button.setFont(new Font("JetBrains Mono", Font.PLAIN, 22));

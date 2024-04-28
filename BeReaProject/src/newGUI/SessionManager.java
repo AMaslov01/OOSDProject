@@ -3,7 +3,7 @@ package newGUI;
 import java.awt.*;
 
 /**
- * Singleton class that manages session data across the application.
+ * Singleton class that manages session data across the whole application.
  * Stores user-specific information such as username, user ID, friends list, current image, and BeReal ID.
  */
 public class SessionManager {

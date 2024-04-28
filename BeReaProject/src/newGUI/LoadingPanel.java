@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Class representing a panel used to display a loading screen.
+ * Class representing a panel that is used to display a loading screen.
  * This panel is shown during operations that require waiting, such as loading data or processing actions.
  */
 public class LoadingPanel extends JPanel {

@@ -190,7 +190,7 @@ public class RegisterPanel extends JPanel {
 
     /**
      * Sets the style for panels used in this class.
-     * Configures the background color.
+     * Configures the background colour.
      * @param panel The JPanel to style.
      */
     private void stylePanel(JPanel panel){

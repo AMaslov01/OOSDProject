@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles all database interaction for the application, including user authentication, registration, and data retrieval.
+ * Handles all database interaction for the whole application, including user authentication, registration, and data retrieval.
  * Provides methods for executing SQL commands and managing user data, such as images and comments.
  */
 public class Query {

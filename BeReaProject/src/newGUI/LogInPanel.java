@@ -30,7 +30,7 @@ public class LogInPanel extends JPanel {
     }
 
     /**
-     * Initializes the user interface components of the login panel.
+     * Initializes the user interface components of the Login panel.
      * Configures layout, adds text fields for username and password, and buttons for login and registration.
      * Sets action listeners for the buttons to handle user interaction.
      */

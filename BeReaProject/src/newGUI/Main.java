@@ -9,7 +9,7 @@ import javax.swing.*;
 public class Main {
 
     /**
-     * Main method to launch the application.
+     * Main method to launch the whole application.
      * Sets the UI theme using FlatLightLaf and creates the main application window (MainFrame).
      * @param args The command line arguments (not used).
      */
